@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan HDCOPY3D — Orden de trabajo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14181c; --panel:#1b2127; --panel2:#20272e; --border:#2a323a;
+    --text:#edede6; --muted:#8b94a0;
+    --accent:#ff6a13; --accent2:#f2b705;
+    --income:#3fb68b; --figon:#f2b705; --travel:#4c8dff; --rent:#e15554; --off:#3a434c;
+    --bad:#e15554; --good:#3fb68b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;padding-bottom:60px;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  header{padding:28px 20px 20px;border-bottom:1px dashed var(--border);}
+  .headtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+  h1{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:26px;margin:0 0 6px;color:var(--text);}
+  h1 span{color:var(--accent);}
+  .sub{color:var(--muted);font-size:14px;max-width:640px;line-height:1.5;}
+  .headbtns{display:flex;gap:8px;flex-wrap:wrap;}
+  .hbtn{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:4px;cursor:pointer;font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:12px;letter-spacing:.5px;white-space:nowrap;}
+  .hbtn:hover{border-color:var(--accent);}
+  .status{margin-top:14px;border:1px solid var(--border);background:var(--panel);padding:10px 14px;border-radius:4px;font-size:13px;color:var(--text);line-height:1.5;}
+  .status b{color:var(--accent2);}
+  .pillars{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .pillar{border:1px solid var(--border);background:var(--panel);padding:8px 14px;border-radius:2px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.5px;text-transform:uppercase;}
+  .pillar b{color:var(--accent2);}
+
+  .saldo-wrap{padding:16px 20px;border-bottom:1px dashed var(--border);display:flex;gap:24px;flex-wrap:wrap;align-items:center;}
+  .saldo-box{}
+  .saldo-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:1px;color:var(--muted);}
+  .saldo-num{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;}
+  .saldo-num.neg{color:var(--bad);}
+  .saldo-num.pos{color:var(--good);}
+  .saldo-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .progress-wrap{padding:18px 20px;border-bottom:1px dashed var(--border);}
+  .progress-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:13px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;}
+  .progress-note{color:var(--muted);font-size:12px;margin-bottom:10px;line-height:1.5;}
+  .bar-row{margin-bottom:16px;border-bottom:1px dashed var(--border);padding-bottom:10px;}
+  .bar-label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text);margin-bottom:4px;font-weight:600;}
+  .bar-label span.tgt{color:var(--muted);font-weight:400;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+  .bar-bg{height:8px;background:var(--panel2);border:1px solid var(--border);border-radius:2px;overflow:hidden;}
+  .bar-fill{height:100%;}
+  .bar-foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:6px;}
+  .bar-foot .plan-ref{color:var(--muted);font-size:11px;}
+  .bar-foot .real-edit{display:flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);}
+  .bar-foot input{width:64px;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:12px;}
+  #dateSelector{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  #dateSelector select, #dateSelector input{background:var(--panel2);color:var(--text);border:1px solid var(--border);padding:5px 8px;font-family:'IBM Plex Mono',monospace;font-size:12px;border-radius:2px;}
+
+  .strategy{padding:18px 20px;border-bottom:1px dashed var(--border);}
+  .strategy summary{cursor:pointer;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:14px;color:var(--accent2);}
+  .strategy ol{margin:12px 0 0;padding-left:18px;color:var(--text);font-size:13.5px;line-height:1.7;}
+  .strategy li b{color:var(--accent);}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;padding:14px 20px;font-size:11px;color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .dot{width:9px;height:9px;border-radius:1px;display:inline-block;}
+
+  .month{padding:8px 20px 26px;}
+  .month h2{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:17px;letter-spacing:1px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:6px;margin:18px 0 10px;}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .dow{text-align:center;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding-bottom:2px;}
+  .cell{position:relative;aspect-ratio:1/1;border:1px solid var(--border);background:var(--panel);border-radius:2px;cursor:pointer;padding:5px 4px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .1s, border-color .1s;overflow:hidden;}
+  .cell:hover{border-color:var(--accent);transform:translateY(-1px);}
+  .cell.empty{visibility:hidden;pointer-events:none;}
+  .cell .stripe{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:2px 0 0 2px;}
+  .cell .num{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;padding-left:5px;}
+  .cell .tag{font-size:9px;color:var(--text);padding-left:5px;line-height:1.15;text-transform:uppercase;letter-spacing:.2px;white-space:nowrap;font-weight:600;}
+  .cell .ticket{font-family:'IBM Plex Mono',monospace;font-size:7.5px;color:var(--muted);padding-left:5px;}
+  .cell .done{position:absolute;top:3px;right:4px;font-size:10px;color:var(--income);}
+  .cell.today{outline:2px solid var(--accent2);}
+
+  #overlay, #notesOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  #overlay.open, #notesOverlay.open{display:flex;}
+  #panel, #notesPanel{background:var(--panel);width:100%;max-width:560px;max-height:88vh;overflow-y:auto;border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;padding:0;animation:slideup .18s ease-out;}
+  @keyframes slideup{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  @media(min-width:600px){
+    #overlay, #notesOverlay{align-items:center;}
+    #panel, #notesPanel{border-radius:8px;border-bottom:1px solid var(--border);}
+  }
+  .ticket-head{padding:16px 20px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--panel);}
+  .ticket-head .no{font-family:'IBM Plex Mono',monospace;color:var(--muted);font-size:11px;}
+  .ticket-head h3{font-family:'Oswald',sans-serif;text-transform:uppercase;margin:2px 0 0;font-size:20px;letter-spacing:.5px;}
+  .ticket-head .phase{color:var(--accent2);font-size:12px;margin-top:4px;}
+  .closeBtn{background:none;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:14px;flex-shrink:0;}
+  .ticket-body{padding:16px 20px 22px;}
+  .block{margin-bottom:16px;}
+  .block-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+  .block-content{font-size:14px;line-height:1.55;}
+  ul.tasklist{list-style:none;margin:0;padding:0;}
+  ul.tasklist li{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13.5px;line-height:1.5;}
+  ul.tasklist li input[type=checkbox]{margin-top:3px;width:15px;height:15px;accent-color:var(--accent);flex-shrink:0;cursor:pointer;}
+  ul.tasklist li span{flex:1;}
+  ul.tasklist li.checked span{text-decoration:line-through;color:var(--muted);}
+  .money-line{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:3px 0;color:var(--text);}
+  .money-line span:last-child{color:var(--accent2);}
+  .money-disclaimer{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;font-style:italic;}
+  .quote{border-left:2px solid var(--accent);padding-left:12px;font-style:italic;color:var(--text);font-size:13.5px;margin-top:4px;}
+  .quote .who{display:block;margin-top:4px;font-style:normal;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+
+  .noteform{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+  .noteform select, .noteform input, .noteform textarea{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;}
+  .noteform textarea{grid-column:1/3;resize:vertical;min-height:40px;}
+  .noteform input[type=date]{grid-column:1/3;}
+  .noteform button{grid-column:1/3;background:var(--accent);border:none;color:#1a1207;font-weight:600;padding:9px;border-radius:4px;cursor:pointer;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.5px;font-size:13px;}
+  .entry{border:1px solid var(--border);background:var(--panel2);border-radius:4px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+  .entry .etype{font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:8px;display:inline-block;margin-bottom:4px;}
+  .etype.deuda{background:rgba(225,85,84,.18);color:#f28584;}
+  .etype.medeben{background:rgba(63,182,139,.18);color:#6fd6ae;}
+  .etype.nota{background:rgba(76,141,255,.18);color:#8fb4ff;}
+  .etype.ingreso{background:rgba(63,182,139,.18);color:#6fd6ae;}
+  .etype.gasto{background:rgba(225,85,84,.18);color:#f28584;}
+  .entry .edate{font-size:10px;color:var(--muted);margin-left:6px;}
+  .entry .etext{font-size:13.5px;line-height:1.4;}
+  .entry .eamount{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent2);margin-top:2px;}
+  .delBtn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;width:26px;height:26px;cursor:pointer;flex-shrink:0;font-size:12px;}
+  .muted-note{color:var(--muted);font-size:12px;margin-top:6px;}
+  .loading{color:var(--muted);font-size:13px;padding:10px 0;}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .filters button{background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:12px;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:.3px;}
+  .filters button.active{background:var(--accent);color:#1a1207;border-color:var(--accent);}
+  .backup-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .backup-row button{flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;cursor:pointer;font-size:12px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.4px;}
+  .backup-row button:hover{border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="headtop">
+    <div>
+      <h1>Plan <span>HDCOPY3D</span> — Salud, Dinero, Estabilidad</h1>
+      <div class="sub" id="rangeLabel">14 agosto – 11 diciembre 2026. Toca cada día para ver tu orden de trabajo y marcar tareas hechas.</div>
+    </div>
+    <div class="headbtns">
+      <button class="hbtn" id="notesBtn">💶 Registro financiero</button>
+    </div>
+  </div>
+  <div class="status">Capital inicial: <b>0€</b>. Ingresos y gastos reales se registran en "Registro financiero" a medida que ocurren — nada se da por hecho automáticamente.<br>
+  Las reparaciones (moto + coche + fuga de agua) rondan realmente <b>500€–880€</b> en talleres reales. El plan las reparte poco a poco: no hace falta tenerlo todo junto.</div>
+  <div class="pillars">
+    <div class="pillar">1. <b>Salud</b></div>
+    <div class="pillar">2. <b>Dinero</b></div>
+    <div class="pillar">3. <b>Estabilidad</b></div>
+  </div>
+</header>
+
+<div class="saldo-wrap">
+  <div class="saldo-box">
+    <div class="saldo-label">Saldo real actual (ingresos − gastos registrados)</div>
+    <div class="saldo-num" id="saldoNum">…</div>
+    <div class="saldo-sub" id="saldoSub"></div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-title">Ahorros reales por objetivo</div>
+  <div class="progress-note">Estos números <b>no se rellenan solos</b>: los escribes tú abajo, cuando de verdad hayas apartado ese dinero de tu saldo. La cifra pequeña "plan a esta fecha" es solo una referencia de a dónde deberías llegar si sigues el reparto — no un hecho.</div>
+  <div id="dateSelector">
+    <span class="mono" style="font-size:12px;color:var(--muted);">Comparar con el plan en fecha:</span>
+    <input type="date" id="datePicker" value="2026-08-14">
+  </div>
+  <div id="bars" style="margin-top:14px;">Cargando…</div>
+</div>
+
+<details class="strategy">
+  <summary>Estrategia de captación de clientes para HDCOPY3D (toca para ver)</summary>
+  <ol>
+    <li><b>Puerta fría local:</b> visita 2 negocios/semana (bares, tiendas, peluquerías) con una muestra física de vinilo o pieza 3D. La muestra vende más que la explicación.</li>
+    <li><b>Pack hostelería:</b> ofrece "menú digital + cartelería + rótulo" como paquete a bares/restaurantes nuevos, con descuento de lanzamiento el primer mes.</li>
+    <li><b>Prueba social digital:</b> un vídeo corto antes/después por semana en Instagram/TikTok. No hace falta perfección, hace falta constancia.</li>
+    <li><b>Producto rápido de catálogo:</b> ten siempre 3-4 artículos personalizables (llaveros, placas, letras) listos para vender sin esperar a fabricar bajo pedido.</li>
+    <li><b>Reactivar clientes antiguos:</b> cada semana, contacta a un cliente pasado para pedir reseña o proponerle un nuevo servicio.</li>
+    <li><b>Regla de cobro:</b> ningún trabajo con materiales sin anticipo. Sin excepciones durante estos meses.</li>
+  </ol>
+</details>
+
+<div class="legend">
+  <span><i class="dot" style="background:var(--income);"></i>Electricidad (L-V)</span>
+  <span><i class="dot" style="background:var(--figon);"></i>El Figón</span>
+  <span><i class="dot" style="background:var(--off);"></i>Libre</span>
+  <span><i class="dot" style="background:var(--travel);"></i>Viaje Marruecos</span>
+  <span><i class="dot" style="background:var(--rent);"></i>Día de alquiler</span>
+</div>
+
+<div id="calendar"></div>
+
+<div id="overlay"><div id="panel"></div></div>
+<div id="notesOverlay"><div id="notesPanel"></div></div>
+
+<script>
+/* ============ ALMACENAMIENTO (funciona dentro de Claude y también subido a GitHub) ============ */
+const hasClaudeStorage = (typeof window.storage !== "undefined") && window.storage && typeof window.storage.get === "function";
+
+async function storeGet(key){
+  if(hasClaudeStorage){
+    try{ const r = await window.storage.get(key, false); return r ? r.value : null; }catch(e){ return null; }
+  }
+  try{ return localStorage.getItem("hd90_"+key); }catch(e){ return null; }
+}
+async function storeSet(key, value){
+  if(hasClaudeStorage){
+    try{ await window.storage.set(key, value, false); return true; }catch(e){ console.error(e); return false; }
+  }
+  try{ localStorage.setItem("hd90_"+key, value); return true; }catch(e){ console.error(e); return false; }
+}
+async function storeListPrefix(prefix){
+  if(hasClaudeStorage){
+    try{ const r = await window.storage.list(prefix, false); return r && r.keys ? r.keys : []; }catch(e){ return []; }
+  }
+  const out = [];
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.startsWith("hd90_"+prefix)) out.push(k.replace("hd90_",""));
+    }
+  }catch(e){}
+  return out;
+}
+
+/* ============ CONFIG ============ */
+const START = new Date(2026,7,14); // 14 ago 2026 (viernes)
+const DAYS = 120; // 14 ago -> 11 dic 2026 (un mes más que la versión anterior)
+const FIGON_START = new Date(2026,8,5);
+const LAST_FIGON_WEEKEND = ["2026-08-15","2026-08-16"];
+const TRIP = ["2026-09-15","2026-09-16","2026-09-17"];
+const RENT_DAYS = ["2026-09-01","2026-10-01","2026-11-01","2026-12-01"];
+
+const CAR_TARGET = 300;
+const MOTO_TARGET = 400;
+const TRIP_TARGET = 200;
+const RENT_ALLOC = 15, RENT_TARGET = 250;
+
+const DOW = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+const MONTHS = [
+  {name:"Agosto 2026", y:2026, m:7},
+  {name:"Septiembre 2026", y:2026, m:8},
+  {name:"Octubre 2026", y:2026, m:9},
+  {name:"Noviembre 2026", y:2026, m:10},
+  {name:"Diciembre 2026", y:2026, m:11}
+];
+
+function iso(d){ return d.toISOString().slice(0,10); }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function isTravel(d){ return TRIP.includes(iso(d)); }
+function isFigonDay(d){ return LAST_FIGON_WEEKEND.includes(iso(d)) || d>=FIGON_START; }
+const TODAY_ISO = iso(new Date());
+
+function income(d){
+  if(isTravel(d)) return 0;
+  const dow = d.getDay();
+  if(dow>=1 && dow<=5) return 80;
+  if((dow===0||dow===6) && isFigonDay(d)) return 80;
+  return 0;
+}
+
+function simulateFunds(uptoIndex){
+  let car=0, moto=0, trip=0, invest=0;
+  for(let k=0;k<=uptoIndex;k++){
+    if(income(addDays(START,k))<=0) continue;
+    let leftover = 0;
+    const stepCar = Math.min(15, Math.max(0, CAR_TARGET-car)); car+=stepCar; leftover += (15-stepCar);
+    const stepMoto = Math.min(15, Math.max(0, MOTO_TARGET-moto)); moto+=stepMoto; leftover += (15-stepMoto);
+    const stepTrip = Math.min(10, Math.max(0, TRIP_TARGET-trip)); trip+=stepTrip; leftover += (10-stepTrip);
+    invest += 10 + leftover;
+  }
+  return {car,moto,trip,invest};
+}
+function fundsStepAt(i){
+  const prev = i>0 ? simulateFunds(i-1) : {car:0,moto:0,trip:0,invest:0};
+  const cur = simulateFunds(i);
+  return { car: cur.car-prev.car, moto: cur.moto-prev.moto, trip: cur.trip-prev.trip, invest: cur.invest-prev.invest, cur, prev };
+}
+function rentState(i){
+  let resetIdx = 0;
+  for(const r of RENT_DAYS){
+    const rd = new Date(r+"T00:00:00");
+    const diff = Math.round((rd-START)/86400000);
+    if(diff<=i) resetIdx = diff+1;
+  }
+  let c=0;
+  for(let k=resetIdx;k<=i;k++){ if(income(addDays(START,k))>0) c++; }
+  return Math.min(c*RENT_ALLOC, RENT_TARGET);
+}
+
+function getPhase(i){
+  const week = Math.floor(i/7)+1;
+  const named = [
+   "Diagnóstico total",
+   "Presupuestos y primeras reparaciones",
+   "Motor de ingresos HDCOPY3D",
+   "Arranca el Figón + primeras ventas",
+   "Ahorro y viaje a Marruecos",
+   "Vuelta a la rutina y reinversión"
+  ];
+  const totalWeeks = Math.ceil(DAYS/7);
+  if(week<=named.length) return "Semana "+week+" · "+named[week-1];
+  if(week>=totalWeeks-1) return "Semana "+week+" · Recta final: revisión";
+  return "Semana "+week+" · Consolidación";
+}
+
+/* ============ CONTENIDO ============ */
+const HD_TASKS = [
+ "Visita 2 negocios locales (bar, tienda, peluquería) con una muestra física de vinilo o pieza 3D.",
+ "Graba y publica un vídeo corto antes/después de un trabajo reciente en Instagram/TikTok.",
+ "Actualiza tu catálogo de WhatsApp Business: 5 productos estrella con precio claro.",
+ "Ofrece a un bar/restaurante el pack 'menú digital + cartelería' con descuento de lanzamiento.",
+ "Revisa tu ficha de Google Business: sube 2 fotos nuevas y responde reseñas pendientes.",
+ "Produce una pieza pequeña de catálogo (llavero, placa) para tener stock listo para vender.",
+ "Pide reseña a 2 clientes anteriores satisfechos.",
+ "Contacta a un cliente antiguo y ofrécele un servicio nuevo (upsell).",
+ "Cierra un presupuesto que tengas pendiente de enviar o de cobrar el anticipo.",
+ "Dedica 1 hora a producción: adelanta un pedido de 3D o corte de vinilo.",
+ "Busca 2 mercadillos o ferias locales donde vender directo al público.",
+ "Ordena el taller 15 minutos. Lo que no se ve también vende."
+];
+const QUOTES = [
+ "No necesitas motivación, necesitas rutina. Haz la lista y táchala.",
+ "Un problema resuelto hoy es un problema que no vuelve mañana.",
+ "No compares tu semana 1 con tu semana 12. Compárala con tu semana 0.",
+ "El orden en el taller es orden en la cabeza.",
+ "Cobra el anticipo. Siempre.",
+ "Tres tareas. No diez. Hazlas bien.",
+ "Cada euro que apartas hoy es una decisión que no tienes que tomar con estrés mañana.",
+ "Cerrar puertas también es avanzar.",
+ "La constancia no es intensidad, es repetición.",
+ "Hoy no se trata de arreglarlo todo. Se trata de hacer las tres cosas de hoy."
+];
+
+const OVERRIDES = {
+ "2026-08-14": {special:"Arranque del plan. Antes de nada, apunta tus 7 cifras clave en 'Registro financiero': dinero personal, dinero de HDCOPY3D, gastos fijos, deudas, lo que te deben y facturas pendientes."},
+ "2026-08-15": {special:"Penúltima mañana en El Figón antes del parón de verano. Mañana domingo es la última de este bloque."},
+ "2026-08-16": {special:"Último día en El Figón por ahora. Todavía no repares nada: primero pide presupuestos."},
+ "2026-08-22": {special:"Pide presupuesto cerrado en 2 talleres para las ruedas del Clio y la fuga de agua. Compara precio antes de decidir dónde reparar."},
+ "2026-08-23": {special:"Pide presupuesto en 1-2 talleres de moto para las ruedas de la Harley."},
+ "2026-09-01": {special:"Hoy toca pagar el alquiler (250€). Págalo primero, antes que cualquier otro gasto."},
+ "2026-09-05": {special:"Primer turno de la vuelta en El Figón de Juan (9:00–18:00). Aprovecha y pide a Juan poner una tarjeta o cartel pequeño de HDCOPY3D en el local: cliente potencial fácil."},
+ "2026-09-14": {special:"Habla con el electricista y confirma que esta semana tienes martes, miércoles y jueves libres para el viaje. Es un trabajo informal: pídelo con antelación y claridad."},
+ "2026-09-15": {special:"Viaje a Marruecos, día 1. Vuelo de ida. Desconecta de verdad: nada de tareas de HDCOPY3D hoy.", type:"travel"},
+ "2026-09-16": {special:"Viaje a Marruecos, día 2. Disfruta. Mañana vuelves con la cabeza despejada.", type:"travel"},
+ "2026-09-17": {special:"Viaje a Marruecos, día 3. Vuelo de vuelta. Al llegar, deja todo listo para retomar mañana con normalidad.", type:"travel"},
+ "2026-10-01": {special:"Hoy toca pagar el alquiler (250€)."},
+ "2026-11-01": {special:"Hoy toca pagar el alquiler (250€)."},
+ "2026-11-11": {special:"Quedan 30 días. Revisión de mitad de recta: compara tu saldo y ahorros reales con lo que marca el plan, y ajusta lo que haga falta."},
+ "2026-12-01": {special:"Hoy toca pagar el alquiler (250€)."}
+};
+const FINAL_DS = iso(addDays(START, DAYS-1));
+OVERRIDES[FINAL_DS] = {special:"Último día del plan. Relee tus 7 cifras del día 1 (en 'Registro financiero') y compáralas con las de hoy. Decide, con datos y no con ánimo, cuáles de las 6 líneas de la solución siguen abiertas y cuáles ya has cerrado."};
+
+/* ============ CONSTRUCCIÓN DEL DÍA ============ */
+function buildDay(i){
+  const d = addDays(START,i);
+  const ds = iso(d);
+  const dow = d.getDay();
+  const isWeekday = dow>=1 && dow<=5;
+  const travel = isTravel(d);
+  const figonDay = (dow===0||dow===6) && isFigonDay(d) && !travel;
+  const libreDay = (dow===0||dow===6) && !isFigonDay(d) && !travel;
+  const rentDay = RENT_DAYS.includes(ds);
+  const inc = income(d);
+
+  let type = "electricidad";
+  if(travel) type="travel";
+  else if(figonDay) type="figon";
+  else if(libreDay) type="libre";
+
+  let schedule;
+  if(travel) schedule = "Sin turno — día de viaje";
+  else if(type==="electricidad") schedule = "Electricidad · 07:00–16:00 · 80€";
+  else if(type==="figon") schedule = "El Figón de Juan · 09:00–18:00 · 80€";
+  else schedule = "Día libre";
+
+  const tasks = [];
+  const ov = OVERRIDES[ds];
+  if(ov) tasks.push(ov.special);
+
+  if(inc>0){
+    const step = fundsStepAt(i);
+    if(step.prev.car<CAR_TARGET && step.cur.car>=CAR_TARGET){
+      tasks.push("🔧 Según el plan, hoy completarías los "+CAR_TARGET+"€ del bloque 'coche'. Si de verdad los tienes ahorrados, pide cita para las ruedas del Clio y la fuga de agua.");
+    }
+    if(step.prev.moto<MOTO_TARGET && step.cur.moto>=MOTO_TARGET){
+      tasks.push("🏍️ Según el plan, hoy completarías los "+MOTO_TARGET+"€ del bloque 'moto'. Si los tienes ahorrados de verdad, pide cita para las ruedas de la Harley.");
+    }
+    if(step.prev.trip<TRIP_TARGET && step.cur.trip>=TRIP_TARGET){
+      tasks.push("✈️ Según el plan, hoy completarías los "+TRIP_TARGET+"€ del viaje. Si los tienes, es buen momento para reservar vuelo y alojamiento.");
+    }
+  }
+
+  if(!travel){
+    if(isWeekday || figonDay){
+      tasks.push(HD_TASKS[i % HD_TASKS.length]);
+    } else if(libreDay){
+      tasks.push("Aprovecha la mañana libre para HDCOPY3D: " + HD_TASKS[i % HD_TASKS.length].toLowerCase());
+    }
+  }
+  if(dow===0 && !travel){
+    tasks.push("Revisión semanal: compara tu saldo y ahorros reales (arriba) con el plan, y registra ingresos/gastos que falten.");
+  }
+  if(dow===0 && !travel && (i%14===0)){
+    tasks.push("Reflexión personal (20 min, sin decidir nada en caliente): ¿la relación que tienes ahora es compatible con la vida que quieres construir? Escríbelo en notas, no lo resuelvas hoy.");
+  }
+
+  const money = [];
+  if(inc>0){
+    money.push(["Ingreso previsto hoy", "+"+inc+"€"]);
+    const step = fundsStepAt(i);
+    if(step.car>0) money.push(["Sugerido → coche", step.car+"€"]);
+    if(step.moto>0) money.push(["Sugerido → moto", step.moto+"€"]);
+    if(step.trip>0) money.push(["Sugerido → viaje", step.trip+"€"]);
+    money.push(["Sugerido → alquiler", RENT_ALLOC+"€"]);
+    if(step.invest>0) money.push(["Sugerido → inversión HDCOPY3D", step.invest+"€"]);
+    const variosCalc = inc - RENT_ALLOC - step.car - step.moto - step.trip - step.invest;
+    if(variosCalc>0) money.push(["Variables (gasolina, comida...)", variosCalc+"€"]);
+  }
+  if(rentDay) money.push(["Pago de alquiler", "-250€"]);
+  if(travel && ds==="2026-09-15") money.push(["Pago del viaje (vuelo + alojamiento)", "-200€"]);
+
+  return { i, date:d, ds, dow, type, schedule, tasks, money, phase: getPhase(i), quote: QUOTES[i % QUOTES.length] };
+}
+
+/* ============ CALENDARIO ============ */
+const calEl = document.getElementById("calendar");
+const cellRefs = {};
+
+MONTHS.forEach(mo=>{
+  const monthDiv = document.createElement("div");
+  monthDiv.className="month";
+  const h2=document.createElement("h2"); h2.textContent=mo.name; monthDiv.appendChild(h2);
+  const grid=document.createElement("div"); grid.className="grid";
+  DOW.forEach(dn=>{ const el=document.createElement("div"); el.className="dow"; el.textContent=dn; grid.appendChild(el); });
+
+  const firstOfMonth = new Date(mo.y, mo.m, 1);
+  const rawDow = firstOfMonth.getDay();
+  const leading = (rawDow+6)%7;
+  for(let e=0;e<leading;e++){ const c=document.createElement("div"); c.className="cell empty"; grid.appendChild(c); }
+
+  const daysInMonth = new Date(mo.y, mo.m+1, 0).getDate();
+  for(let day=1; day<=daysInMonth; day++){
+    const d = new Date(mo.y, mo.m, day);
+    const idx = Math.round((d-START)/86400000);
+    const cell = document.createElement("div");
+    if(idx<0 || idx>=DAYS){
+      cell.className="cell empty";
+    } else {
+      const info = buildDay(idx);
+      cell.className="cell"+(info.ds===TODAY_ISO?" today":"");
+      const stripeColor = info.type==="electricidad"?"var(--income)":info.type==="figon"?"var(--figon)":info.type==="travel"?"var(--travel)":"var(--off)";
+      let extraStyle = "";
+      if(RENT_DAYS.includes(info.ds)) extraStyle = "border-color:var(--rent);";
+      const tagText = info.type==="electricidad"?"ELEC":info.type==="figon"?"FIGÓN":info.type==="travel"?"VIAJE":"LIBRE";
+      cell.setAttribute("style", extraStyle);
+      cell.innerHTML = `<div class="stripe" style="background:${stripeColor}"></div>
+        <div class="num">${day}</div>
+        <div>
+          <div class="tag">${tagText}</div>
+          <div class="ticket">#${String(idx+1).padStart(3,"0")}</div>
+        </div>`;
+      cell.addEventListener("click", ()=>openPanel(idx));
+      cellRefs[info.ds] = cell;
+    }
+    grid.appendChild(cell);
+  }
+  monthDiv.appendChild(grid);
+  calEl.appendChild(monthDiv);
+});
+
+function markCellDone(ds, done){
+  const cell = cellRefs[ds];
+  if(!cell) return;
+  let mark = cell.querySelector(".done");
+  if(done){
+    if(!mark){ mark = document.createElement("div"); mark.className="done"; mark.textContent="✓"; cell.appendChild(mark); }
+  } else if(mark){ mark.remove(); }
+}
+
+/* ============ PANEL DEL DÍA ============ */
+const overlay = document.getElementById("overlay");
+const panel = document.getElementById("panel");
+
+async function openPanel(idx){
+  const info = buildDay(idx);
+  const dateLabel = info.date.toLocaleDateString("es-ES",{weekday:"long", day:"numeric", month:"long"});
+  panel.innerHTML = `
+    <div class="ticket-head">
+      <div>
+        <div class="no">ORDEN DE TRABAJO Nº ${String(idx+1).padStart(3,"0")} / ${DAYS}</div>
+        <h3>${dateLabel}</h3>
+        <div class="phase">${info.phase}</div>
+      </div>
+      <button class="closeBtn" id="closeBtn">✕</button>
+    </div>
+    <div class="ticket-body">
+      <div class="block">
+        <div class="block-label">Turno</div>
+        <div class="block-content">${info.schedule}</div>
+      </div>
+      <div class="block">
+        <div class="block-label">Tareas de hoy (toca para marcar hecha)</div>
+        <ul class="tasklist" id="taskList">${info.tasks.map((t,idx2)=>`<li data-idx="${idx2}"><input type="checkbox" id="chk${idx2}"><span>${t}</span></li>`).join("")}</ul>
+      </div>
+      ${info.money.length? `<div class="block">
+        <div class="block-label">Dinero</div>
+        <div class="block-content">${info.money.map(m=>`<div class="money-line"><span>${m[0]}</span><span>${m[1]}</span></div>`).join("")}</div>
+        <div class="money-disclaimer">Esto es el reparto que sugiere el plan si hoy trabajas y cobras. No es un registro de lo que ya tienes ahorrado — regístralo tú en "Registro financiero".</div>
+      </div>` : ""}
+      <div class="block">
+        <div class="quote">"${info.quote}"<span class="who">— El entrenador</span></div>
+      </div>
+    </div>
+  `;
+  overlay.classList.add("open");
+  document.getElementById("closeBtn").addEventListener("click", closePanel);
+
+  const key = "tasks:"+info.ds;
+  const saved = await storeGet(key);
+  let state = [];
+  try{ state = saved ? JSON.parse(saved) : []; }catch(e){ state = []; }
+  if(!Array.isArray(state)) state = [];
+
+  const items = panel.querySelectorAll("#taskList li");
+  items.forEach((li,idx2)=>{
+    const cb = li.querySelector("input");
+    const isChecked = !!state[idx2];
+    cb.checked = isChecked;
+    li.classList.toggle("checked", isChecked);
+    cb.addEventListener("change", async ()=>{
+      state[idx2] = cb.checked;
+      li.classList.toggle("checked", cb.checked);
+      await storeSet(key, JSON.stringify(state));
+      const allDone = info.tasks.length>0 && info.tasks.every((_,k)=>!!state[k]);
+      markCellDone(info.ds, allDone);
+    });
+  });
+  const allDoneInit = info.tasks.length>0 && info.tasks.every((_,k)=>!!state[k]);
+  markCellDone(info.ds, allDoneInit);
+}
+function closePanel(){ overlay.classList.remove("open"); }
+overlay.addEventListener("click", (e)=>{ if(e.target===overlay) closePanel(); });
+
+/* ============ REGISTRO FINANCIERO (ingresos, gastos, deudas, notas) ============ */
+const REGISTRO_KEY = "registro";
+const REAL_KEY = "real-savings";
+
+async function ensureSeed(){
+  const raw = await storeGet(REGISTRO_KEY);
+  if(raw===null){
+    const seed = [
+      {id:1, date:"2026-08-15", type:"ingreso", text:"Turno en El Figón (penúltima mañana)", amount:80},
+      {id:2, date:"2026-08-15", type:"gasto", text:"Tabaco (paquete de Ducado rubio)", amount:5.5},
+      {id:3, date:"2026-08-15", type:"gasto", text:"Comida para los perros", amount:10}
+    ];
+    await storeSet(REGISTRO_KEY, JSON.stringify(seed));
+  }
+}
+async function getEntries(){
+  const raw = await storeGet(REGISTRO_KEY);
+  if(!raw) return [];
+  try{ const arr = JSON.parse(raw); return Array.isArray(arr) ? arr : []; }catch(e){ return []; }
+}
+async function saveEntries(arr){ await storeSet(REGISTRO_KEY, JSON.stringify(arr)); }
+
+async function computeSaldo(){
+  const entries = await getEntries();
+  let ingresos=0, gastos=0;
+  entries.forEach(e=>{
+    const amt = Number(e.amount)||0;
+    if(e.type==="ingreso") ingresos+=amt;
+    else if(e.type==="gasto") gastos+=amt;
+  });
+  return {saldo: ingresos-gastos, ingresos, gastos};
+}
+async function renderSaldo(){
+  const {saldo, ingresos, gastos} = await computeSaldo();
+  const el = document.getElementById("saldoNum");
+  el.textContent = saldo.toFixed(2)+"€";
+  el.className = "saldo-num "+(saldo<0?"neg":"pos");
+  document.getElementById("saldoSub").textContent = "Ingresos registrados: "+ingresos.toFixed(2)+"€ · Gastos registrados: "+gastos.toFixed(2)+"€";
+}
+
+async function getReal(){
+  const raw = await storeGet(REAL_KEY);
+  if(!raw) return {car:0, moto:0, trip:0, invest:0};
+  try{ const o = JSON.parse(raw); return {car:+o.car||0, moto:+o.moto||0, trip:+o.trip||0, invest:+o.invest||0}; }
+  catch(e){ return {car:0, moto:0, trip:0, invest:0}; }
+}
+async function setReal(obj){ await storeSet(REAL_KEY, JSON.stringify(obj)); }
+
+const barsEl = document.getElementById("bars");
+const picker = document.getElementById("datePicker");
+picker.min = iso(START);
+picker.max = iso(addDays(START,DAYS-1));
+picker.value = TODAY_ISO >= iso(START) && TODAY_ISO <= iso(addDays(START,DAYS-1)) ? TODAY_ISO : iso(START);
+
+async function renderBars(){
+  const d = new Date(picker.value+"T00:00:00");
+  let idx = Math.round((d-START)/86400000);
+  idx = Math.max(0, Math.min(DAYS-1, idx));
+  const plan = simulateFunds(idx);
+  const real = await getReal();
+
+  const rows = [
+    {key:"car", label:"Coche (ruedas + fuga de agua)", target:CAR_TARGET, color:"var(--rent)"},
+    {key:"moto", label:"Moto (ruedas Harley)", target:MOTO_TARGET, color:"var(--off)"},
+    {key:"trip", label:"Viaje a Marruecos", target:TRIP_TARGET, color:"var(--travel)"},
+    {key:"invest", label:"Inversión HDCOPY3D", target:Math.max(real.invest,300), color:"var(--accent)"}
+  ];
+
+  barsEl.innerHTML = rows.map(r=>{
+    const pct = Math.min(100, Math.round((real[r.key]/r.target)*100));
+    return `<div class="bar-row">
+      <div class="bar-label"><span>${r.label}</span><span class="tgt">objetivo ${r.target}€</span></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${r.color};"></div></div>
+      <div class="bar-foot">
+        <span class="plan-ref">Plan a esta fecha: ${plan[r.key]}€</span>
+        <span class="real-edit">Real: <input type="number" min="0" step="5" data-bucket="${r.key}" value="${real[r.key]}"> €</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  barsEl.querySelectorAll("input[data-bucket]").forEach(inp=>{
+    inp.addEventListener("change", async ()=>{
+      const cur = await getReal();
+      cur[inp.getAttribute("data-bucket")] = Math.max(0, Number(inp.value)||0);
+      await setReal(cur);
+      renderBars();
+    });
+  });
+}
+picker.addEventListener("change", renderBars);
+
+/* ---------- Panel Registro financiero ---------- */
+const notesOverlay = document.getElementById("notesOverlay");
+const notesPanel = document.getElementById("notesPanel");
+let activeFilter = "todos";
+
+document.getElementById("notesBtn").addEventListener("click", openNotes);
+
+async function openNotes(){
+  const todayVal = TODAY_ISO;
+  notesPanel.innerHTML = `
+    <div class="ticket-head">
+      <div><h3>Registro financiero</h3></div>
+      <button class="closeBtn" id="closeNotesBtn">✕</button>
+    </div>
+    <div class="ticket-body">
+      <div class="noteform">
+        <select id="ntype">
+          <option value="ingreso">Ingreso</option>
+          <option value="gasto">Gasto</option>
+          <option value="deuda">Debo</option>
+          <option value="medeben">Me deben</option>
+          <option value="nota">Nota / cifra</option>
+        </select>
+        <input type="number" id="namount" placeholder="Importe € (opcional)" step="0.5">
+        <input type="date" id="ndate" value="${todayVal}">
+        <textarea id="ntext" placeholder="Descripción: qué es, a quién, o la cifra que quieras apuntar..."></textarea>
+        <button id="addNote">Añadir</button>
+      </div>
+      <div class="filters" id="filters">
+        <button data-f="todos" class="active">Todos</button>
+        <button data-f="ingreso">Ingresos</button>
+        <button data-f="gasto">Gastos</button>
+        <button data-f="deuda">Debo</button>
+        <button data-f="medeben">Me deben</button>
+        <button data-f="nota">Notas</button>
+      </div>
+      <div id="notesList" class="loading">Cargando...</div>
+      <div class="backup-row">
+        <button id="exportBtn">⬇ Exportar copia de seguridad</button>
+        <button id="importBtn">⬆ Importar copia</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </div>
+      <div class="muted-note">La copia de seguridad descarga un .json con tu registro, tus ahorros reales y tus tareas marcadas. Guárdalo si cambias de móvil o navegador.</div>
+    </div>
+  `;
+  notesOverlay.classList.add("open");
+  document.getElementById("closeNotesBtn").addEventListener("click", ()=>notesOverlay.classList.remove("open"));
+  notesOverlay.onclick = (e)=>{ if(e.target===notesOverlay) notesOverlay.classList.remove("open"); };
+  document.getElementById("addNote").addEventListener("click", addNoteEntry);
+  document.getElementById("exportBtn").addEventListener("click", exportAll);
+  document.getElementById("importBtn").addEventListener("click", ()=>document.getElementById("importFile").click());
+  document.getElementById("importFile").addEventListener("change", (e)=>{ if(e.target.files[0]) importAll(e.target.files[0]); });
+  document.querySelectorAll("#filters button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      activeFilter = b.getAttribute("data-f");
+      document.querySelectorAll("#filters button").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      renderNotesList();
+    });
+  });
+  await renderNotesList();
+}
+
+async function renderNotesList(){
+  const listEl = document.getElementById("notesList");
+  listEl.className = "";
+  let entries = await getEntries();
+  if(activeFilter!=="todos") entries = entries.filter(e=>e.type===activeFilter);
+  if(entries.length===0){
+    listEl.innerHTML = `<div class="muted-note">Nada por aquí todavía.</div>`;
+    return;
+  }
+  const typeLabel = {deuda:"Debo", medeben:"Me deben", nota:"Nota", ingreso:"Ingreso", gasto:"Gasto"};
+  listEl.innerHTML = entries.slice().sort((a,b)=> (b.date||"").localeCompare(a.date||"") || b.id-a.id).map(en=>`
+    <div class="entry" data-id="${en.id}">
+      <div>
+        <span class="etype ${en.type}">${typeLabel[en.type]||"Nota"}</span><span class="edate">${en.date||""}</span>
+        <div class="etext">${en.text}</div>
+        ${en.amount ? `<div class="eamount">${Number(en.amount).toFixed(2)}€</div>` : ""}
+      </div>
+      <button class="delBtn" data-id="${en.id}">✕</button>
+    </div>
+  `).join("");
+  listEl.querySelectorAll(".delBtn").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-id");
+      const arr = await getEntries();
+      const filtered = arr.filter(e=>String(e.id)!==String(id));
+      await saveEntries(filtered);
+      await renderNotesList();
+      await renderSaldo();
+    });
+  });
+}
+
+async function addNoteEntry(){
+  const type = document.getElementById("ntype").value;
+  const amountRaw = document.getElementById("namount").value;
+  const date = document.getElementById("ndate").value || TODAY_ISO;
+  const text = document.getElementById("ntext").value.trim();
+  if(!text) return;
+  const entry = { id: Date.now(), type, date, text, amount: amountRaw ? Number(amountRaw) : null };
+  const arr = await getEntries();
+  arr.push(entry);
+  await saveEntries(arr);
+  document.getElementById("ntext").value = "";
+  document.getElementById("namount").value = "";
+  await renderNotesList();
+  await renderSaldo();
+}
+
+/* ---------- Copia de seguridad ---------- */
+async function exportAll(){
+  const data = {};
+  data.registro = await getEntries();
+  data.realSavings = await getReal();
+  data.tasks = {};
+  const taskKeys = await storeListPrefix("tasks:");
+  for(const k of taskKeys){
+    const v = await storeGet(k);
+    if(v){ try{ data.tasks[k] = JSON.parse(v); }catch(e){} }
+  }
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "plan-hdcopy3d-backup-"+TODAY_ISO+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+async function importAll(file){
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(data.registro) await storeSet(REGISTRO_KEY, JSON.stringify(data.registro));
+    if(data.realSavings) await storeSet(REAL_KEY, JSON.stringify(data.realSavings));
+    if(data.tasks){ for(const k in data.tasks){ await storeSet(k, JSON.stringify(data.tasks[k])); } }
+    alert("Datos importados correctamente. La página se va a recargar.");
+    location.reload();
+  }catch(e){ alert("Ese archivo no es una copia de seguridad válida."); }
+}
+
+/* ============ INICIO ============ */
+(async function init(){
+  await ensureSeed();
+  await renderSaldo();
+  await renderBars();
+})();
+</script>
+</body>
+</html>
