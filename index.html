@@ -162,7 +162,7 @@
 
 <div class="progress-wrap">
   <div class="progress-title">Ahorros reales por objetivo</div>
-  <div class="progress-note">Estos números <b>no se rellenan solos</b>: los escribes tú abajo, cuando de verdad hayas apartado ese dinero de tu saldo. La cifra pequeña "plan a esta fecha" es solo una referencia de a dónde deberías llegar si sigues el reparto — no un hecho.</div>
+  <div class="progress-note">Esto ahora se calcula solo: cada ingreso que registras se reparte automáticamente (15/15/15/10/10/15 de cada 80€, igual que el plan). Si pagas de verdad una reparación o el viaje, registra ese gasto y márcalo como "sacado de" ese bloque para que se descuente. La cifra pequeña "plan a esta fecha" sigue siendo solo la referencia de a dónde deberías llegar — no lo real.</div>
   <div id="dateSelector">
     <span class="mono" style="font-size:12px;color:var(--muted);">Comparar con el plan en fecha:</span>
     <input type="date" id="datePicker" value="2026-08-14">
@@ -196,33 +196,57 @@
 <div id="notesOverlay"><div id="notesPanel"></div></div>
 
 <script>
-/* ============ ALMACENAMIENTO (funciona dentro de Claude y también subido a GitHub) ============ */
-const hasClaudeStorage = (typeof window.storage !== "undefined") && window.storage && typeof window.storage.get === "function";
+/* ============ ALMACENAMIENTO — guardado automático en este navegador ============
+   Sin servidor, sin tokens, sin GitHub, sin ningún paso previo. Subes este
+   único archivo a GitHub Pages (o lo abres tal cual) y ya guarda solo.
+   Cada cambio se escribe al instante en el almacenamiento del navegador
+   (localStorage). Eso significa: se guarda solo en el navegador/dispositivo
+   donde lo uses — si entras desde el móvil y desde el ordenador, cada uno
+   tiene su propia copia. Para pasar los datos de uno a otro, usa los
+   botones "Exportar / Importar copia de seguridad" de más abajo. */
 
-async function storeGet(key){
-  if(hasClaudeStorage){
-    try{ const r = await window.storage.get(key, false); return r ? r.value : null; }catch(e){ return null; }
-  }
-  try{ return localStorage.getItem("hd90_"+key); }catch(e){ return null; }
-}
-async function storeSet(key, value){
-  if(hasClaudeStorage){
-    try{ await window.storage.set(key, value, false); return true; }catch(e){ console.error(e); return false; }
-  }
-  try{ localStorage.setItem("hd90_"+key, value); return true; }catch(e){ console.error(e); return false; }
-}
-async function storeListPrefix(prefix){
-  if(hasClaudeStorage){
-    try{ const r = await window.storage.list(prefix, false); return r && r.keys ? r.keys : []; }catch(e){ return []; }
-  }
-  const out = [];
+const SEED = [
+  {id:1, date:"2026-08-15", type:"ingreso", text:"Turno en El Figón (penúltima mañana)", amount:80},
+  {id:2, date:"2026-08-15", type:"gasto", text:"Tabaco (paquete de Ducado rubio)", amount:5.5},
+  {id:3, date:"2026-08-15", type:"gasto", text:"Comida para los perros", amount:10}
+];
+let APP = {registro:[], tasks:{}};
+let lastStatus = "cargando";
+
+async function loadAppData(){
   try{
-    for(let i=0;i<localStorage.length;i++){
-      const k = localStorage.key(i);
-      if(k && k.startsWith("hd90_"+prefix)) out.push(k.replace("hd90_",""));
-    }
+    const raw = localStorage.getItem("hd90_app-data");
+    if(raw){ lastStatus = "ok"; return JSON.parse(raw); }
   }catch(e){}
-  return out;
+  lastStatus = "ok";
+  return null;
+}
+
+async function persistAppData(){
+  try{
+    localStorage.setItem("hd90_app-data", JSON.stringify(APP));
+    lastStatus = "guardado";
+  }catch(e){
+    lastStatus = "error";
+  }
+  updateFileStatus();
+}
+
+function updateFileStatus(){
+  const el = document.getElementById("fileStatus");
+  if(!el) return;
+  const map = {
+    "cargando": "Cargando…",
+    "ok": "✅ Guardado automático activado en este navegador.",
+    "guardado": "✅ Guardado en este navegador.",
+    "error": "⚠️ Este navegador no permite guardar datos (¿modo privado/incógnito?). Usa 'Exportar' para no perder nada."
+  };
+  el.textContent = map[lastStatus] || "";
+}
+async function refreshAllUI(){
+  await renderNotesList();
+  await renderSaldo();
+  await renderBars();
 }
 
 /* ============ CONFIG ============ */
@@ -247,7 +271,15 @@ const MONTHS = [
   {name:"Diciembre 2026", y:2026, m:11}
 ];
 
-function iso(d){ return d.toISOString().slice(0,10); }
+function iso(d){
+  // OJO: nunca usar toISOString() aquí — convierte a UTC y en husos horarios
+  // por delante de UTC (como España) desplaza la fecha un día hacia atrás,
+  // que es justo el bug de "hoy es domingo pero lo trata como lunes".
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return y+"-"+m+"-"+day;
+}
 function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
 function isTravel(d){ return TRIP.includes(iso(d)); }
 function isFigonDay(d){ return LAST_FIGON_WEEKEND.includes(iso(d)) || d>=FIGON_START; }
@@ -519,11 +551,7 @@ async function openPanel(idx){
   overlay.classList.add("open");
   document.getElementById("closeBtn").addEventListener("click", closePanel);
 
-  const key = "tasks:"+info.ds;
-  const saved = await storeGet(key);
-  let state = [];
-  try{ state = saved ? JSON.parse(saved) : []; }catch(e){ state = []; }
-  if(!Array.isArray(state)) state = [];
+  const state = Array.isArray(APP.tasks[info.ds]) ? APP.tasks[info.ds].slice() : [];
 
   const items = panel.querySelectorAll("#taskList li");
   items.forEach((li,idx2)=>{
@@ -534,7 +562,8 @@ async function openPanel(idx){
     cb.addEventListener("change", async ()=>{
       state[idx2] = cb.checked;
       li.classList.toggle("checked", cb.checked);
-      await storeSet(key, JSON.stringify(state));
+      APP.tasks[info.ds] = state;
+      await persistAppData();
       const allDone = info.tasks.length>0 && info.tasks.every((_,k)=>!!state[k]);
       markCellDone(info.ds, allDone);
     });
@@ -546,26 +575,10 @@ function closePanel(){ overlay.classList.remove("open"); }
 overlay.addEventListener("click", (e)=>{ if(e.target===overlay) closePanel(); });
 
 /* ============ REGISTRO FINANCIERO (ingresos, gastos, deudas, notas) ============ */
-const REGISTRO_KEY = "registro";
-const REAL_KEY = "real-savings";
+const BUCKET_LABEL = {car:"Coche", moto:"Moto", trip:"Viaje", invest:"Inversión"};
 
-async function ensureSeed(){
-  const raw = await storeGet(REGISTRO_KEY);
-  if(raw===null){
-    const seed = [
-      {id:1, date:"2026-08-15", type:"ingreso", text:"Turno en El Figón (penúltima mañana)", amount:80},
-      {id:2, date:"2026-08-15", type:"gasto", text:"Tabaco (paquete de Ducado rubio)", amount:5.5},
-      {id:3, date:"2026-08-15", type:"gasto", text:"Comida para los perros", amount:10}
-    ];
-    await storeSet(REGISTRO_KEY, JSON.stringify(seed));
-  }
-}
-async function getEntries(){
-  const raw = await storeGet(REGISTRO_KEY);
-  if(!raw) return [];
-  try{ const arr = JSON.parse(raw); return Array.isArray(arr) ? arr : []; }catch(e){ return []; }
-}
-async function saveEntries(arr){ await storeSet(REGISTRO_KEY, JSON.stringify(arr)); }
+async function getEntries(){ return APP.registro || []; }
+async function saveEntries(arr){ APP.registro = arr; await persistAppData(); }
 
 async function computeSaldo(){
   const entries = await getEntries();
@@ -585,13 +598,29 @@ async function renderSaldo(){
   document.getElementById("saldoSub").textContent = "Ingresos registrados: "+ingresos.toFixed(2)+"€ · Gastos registrados: "+gastos.toFixed(2)+"€";
 }
 
-async function getReal(){
-  const raw = await storeGet(REAL_KEY);
-  if(!raw) return {car:0, moto:0, trip:0, invest:0};
-  try{ const o = JSON.parse(raw); return {car:+o.car||0, moto:+o.moto||0, trip:+o.trip||0, invest:+o.invest||0}; }
-  catch(e){ return {car:0, moto:0, trip:0, invest:0}; }
+/* Los "ahorros reales" ya NO se escriben a mano: se calculan solos a partir
+   de tus Ingresos registrados (repartidos con el mismo criterio que el plan:
+   15/15/15/10/10/15 de cada 80€) y de los Gastos que tú marques como
+   "sacados de" un objetivo concreto (p.ej. cuando pagas de verdad las
+   ruedas, marcas ese gasto como "Coche" y se resta de ese bloque). */
+function computeRealBuckets(entries){
+  const state = {car:0, moto:0, trip:0, invest:0};
+  const ordered = entries.slice().sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.id-b.id);
+  ordered.forEach(en=>{
+    const amt = Number(en.amount)||0;
+    if(amt<=0) return;
+    if(en.type==="ingreso"){
+      let leftover = 0;
+      const stepCar = Math.min(amt*(15/80), Math.max(0, CAR_TARGET-state.car)); state.car+=stepCar; leftover += amt*(15/80)-stepCar;
+      const stepMoto = Math.min(amt*(15/80), Math.max(0, MOTO_TARGET-state.moto)); state.moto+=stepMoto; leftover += amt*(15/80)-stepMoto;
+      const stepTrip = Math.min(amt*(10/80), Math.max(0, TRIP_TARGET-state.trip)); state.trip+=stepTrip; leftover += amt*(10/80)-stepTrip;
+      state.invest += amt*(10/80) + leftover;
+    } else if(en.type==="gasto" && en.bucket && state[en.bucket]!==undefined){
+      state[en.bucket] = Math.max(0, state[en.bucket]-amt);
+    }
+  });
+  return state;
 }
-async function setReal(obj){ await storeSet(REAL_KEY, JSON.stringify(obj)); }
 
 const barsEl = document.getElementById("bars");
 const picker = document.getElementById("datePicker");
@@ -604,13 +633,14 @@ async function renderBars(){
   let idx = Math.round((d-START)/86400000);
   idx = Math.max(0, Math.min(DAYS-1, idx));
   const plan = simulateFunds(idx);
-  const real = await getReal();
+  const entries = await getEntries();
+  const real = computeRealBuckets(entries);
 
   const rows = [
     {key:"car", label:"Coche (ruedas + fuga de agua)", target:CAR_TARGET, color:"var(--rent)"},
     {key:"moto", label:"Moto (ruedas Harley)", target:MOTO_TARGET, color:"var(--off)"},
     {key:"trip", label:"Viaje a Marruecos", target:TRIP_TARGET, color:"var(--travel)"},
-    {key:"invest", label:"Inversión HDCOPY3D", target:Math.max(real.invest,300), color:"var(--accent)"}
+    {key:"invest", label:"Inversión HDCOPY3D", target:Math.max(Math.round(real.invest/50)*50,300), color:"var(--accent)"}
   ];
 
   barsEl.innerHTML = rows.map(r=>{
@@ -620,19 +650,10 @@ async function renderBars(){
       <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${r.color};"></div></div>
       <div class="bar-foot">
         <span class="plan-ref">Plan a esta fecha: ${plan[r.key]}€</span>
-        <span class="real-edit">Real: <input type="number" min="0" step="5" data-bucket="${r.key}" value="${real[r.key]}"> €</span>
+        <span class="real-edit">Real (automático): <b>${real[r.key].toFixed(2)}€</b></span>
       </div>
     </div>`;
   }).join("");
-
-  barsEl.querySelectorAll("input[data-bucket]").forEach(inp=>{
-    inp.addEventListener("change", async ()=>{
-      const cur = await getReal();
-      cur[inp.getAttribute("data-bucket")] = Math.max(0, Number(inp.value)||0);
-      await setReal(cur);
-      renderBars();
-    });
-  });
 }
 picker.addEventListener("change", renderBars);
 
@@ -661,9 +682,17 @@ async function openNotes(){
         </select>
         <input type="number" id="namount" placeholder="Importe € (opcional)" step="0.5">
         <input type="date" id="ndate" value="${todayVal}">
+        <select id="nbucket" style="display:none;">
+          <option value="">Gasto normal (no afecta a ningún objetivo)</option>
+          <option value="car">Sacado del bloque Coche</option>
+          <option value="moto">Sacado del bloque Moto</option>
+          <option value="trip">Sacado del bloque Viaje</option>
+          <option value="invest">Sacado del bloque Inversión HDCOPY3D</option>
+        </select>
         <textarea id="ntext" placeholder="Descripción: qué es, a quién, o la cifra que quieras apuntar..."></textarea>
         <button id="addNote">Añadir</button>
       </div>
+      <div class="muted-note" style="margin-top:-8px;margin-bottom:14px;">Los ahorros por objetivo (Coche, Moto, Viaje, Inversión) se calculan solos a partir de tus ingresos. Solo tienes que marcar un gasto como "sacado de" un bloque cuando ese gasto sea la reparación/pago real de ese objetivo.</div>
       <div class="filters" id="filters">
         <button data-f="todos" class="active">Todos</button>
         <button data-f="ingreso">Ingresos</button>
@@ -673,18 +702,24 @@ async function openNotes(){
         <button data-f="nota">Notas</button>
       </div>
       <div id="notesList" class="loading">Cargando...</div>
+
+      <div class="block-label" style="margin-top:18px;">Guardado automático</div>
+      <div class="muted-note" id="fileStatus">Comprobando…</div>
       <div class="backup-row">
         <button id="exportBtn">⬇ Exportar copia de seguridad</button>
         <button id="importBtn">⬆ Importar copia</button>
         <input type="file" id="importFile" accept="application/json" style="display:none;">
       </div>
-      <div class="muted-note">La copia de seguridad descarga un .json con tu registro, tus ahorros reales y tus tareas marcadas. Guárdalo si cambias de móvil o navegador.</div>
+      <div class="muted-note">No hace falta hacer nada: cada cambio se guarda solo en este navegador. Si cambias de móvil, de navegador, o borras datos de navegación, usa "Exportar" antes y "Importar" después para no perder nada.</div>
     </div>
   `;
   notesOverlay.classList.add("open");
   document.getElementById("closeNotesBtn").addEventListener("click", ()=>notesOverlay.classList.remove("open"));
   notesOverlay.onclick = (e)=>{ if(e.target===notesOverlay) notesOverlay.classList.remove("open"); };
   document.getElementById("addNote").addEventListener("click", addNoteEntry);
+  document.getElementById("ntype").addEventListener("change", (e)=>{
+    document.getElementById("nbucket").style.display = e.target.value==="gasto" ? "block" : "none";
+  });
   document.getElementById("exportBtn").addEventListener("click", exportAll);
   document.getElementById("importBtn").addEventListener("click", ()=>document.getElementById("importFile").click());
   document.getElementById("importFile").addEventListener("change", (e)=>{ if(e.target.files[0]) importAll(e.target.files[0]); });
@@ -696,8 +731,10 @@ async function openNotes(){
       renderNotesList();
     });
   });
+  updateFileStatus();
   await renderNotesList();
 }
+
 
 async function renderNotesList(){
   const listEl = document.getElementById("notesList");
@@ -712,7 +749,7 @@ async function renderNotesList(){
   listEl.innerHTML = entries.slice().sort((a,b)=> (b.date||"").localeCompare(a.date||"") || b.id-a.id).map(en=>`
     <div class="entry" data-id="${en.id}">
       <div>
-        <span class="etype ${en.type}">${typeLabel[en.type]||"Nota"}</span><span class="edate">${en.date||""}</span>
+        <span class="etype ${en.type}">${typeLabel[en.type]||"Nota"}</span><span class="edate">${en.date||""}</span>${en.bucket ? `<span class="edate">· ${BUCKET_LABEL[en.bucket]||en.bucket}</span>` : ""}
         <div class="etext">${en.text}</div>
         ${en.amount ? `<div class="eamount">${Number(en.amount).toFixed(2)}€</div>` : ""}
       </div>
@@ -727,6 +764,7 @@ async function renderNotesList(){
       await saveEntries(filtered);
       await renderNotesList();
       await renderSaldo();
+      await renderBars();
     });
   });
 }
@@ -736,29 +774,23 @@ async function addNoteEntry(){
   const amountRaw = document.getElementById("namount").value;
   const date = document.getElementById("ndate").value || TODAY_ISO;
   const text = document.getElementById("ntext").value.trim();
+  const bucketRaw = document.getElementById("nbucket").value;
   if(!text) return;
-  const entry = { id: Date.now(), type, date, text, amount: amountRaw ? Number(amountRaw) : null };
+  const entry = { id: Date.now(), type, date, text, amount: amountRaw ? Number(amountRaw) : null, bucket: (type==="gasto" && bucketRaw) ? bucketRaw : null };
   const arr = await getEntries();
   arr.push(entry);
   await saveEntries(arr);
   document.getElementById("ntext").value = "";
   document.getElementById("namount").value = "";
+  document.getElementById("nbucket").value = "";
   await renderNotesList();
   await renderSaldo();
+  await renderBars();
 }
 
-/* ---------- Copia de seguridad ---------- */
+/* ---------- Copia de seguridad (siempre disponible, en cualquier navegador) ---------- */
 async function exportAll(){
-  const data = {};
-  data.registro = await getEntries();
-  data.realSavings = await getReal();
-  data.tasks = {};
-  const taskKeys = await storeListPrefix("tasks:");
-  for(const k of taskKeys){
-    const v = await storeGet(k);
-    if(v){ try{ data.tasks[k] = JSON.parse(v); }catch(e){} }
-  }
-  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const blob = new Blob([JSON.stringify(APP,null,2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = "plan-hdcopy3d-backup-"+TODAY_ISO+".json";
@@ -769,9 +801,8 @@ async function importAll(file){
   try{
     const text = await file.text();
     const data = JSON.parse(text);
-    if(data.registro) await storeSet(REGISTRO_KEY, JSON.stringify(data.registro));
-    if(data.realSavings) await storeSet(REAL_KEY, JSON.stringify(data.realSavings));
-    if(data.tasks){ for(const k in data.tasks){ await storeSet(k, JSON.stringify(data.tasks[k])); } }
+    APP = Object.assign({registro:[],tasks:{}}, data);
+    await persistAppData();
     alert("Datos importados correctamente. La página se va a recargar.");
     location.reload();
   }catch(e){ alert("Ese archivo no es una copia de seguridad válida."); }
@@ -779,7 +810,13 @@ async function importAll(file){
 
 /* ============ INICIO ============ */
 (async function init(){
-  await ensureSeed();
+  const loaded = await loadAppData();
+  if(loaded){
+    APP = Object.assign({registro:[], tasks:{}}, loaded);
+  } else {
+    APP = {registro: SEED, tasks:{}};
+    await persistAppData();
+  }
   await renderSaldo();
   await renderBars();
 })();
