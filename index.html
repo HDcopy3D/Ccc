@@ -23,8 +23,8 @@
   h1 span{color:var(--accent);}
   .sub{color:var(--muted);font-size:14px;max-width:640px;line-height:1.5;}
   .headbtns{display:flex;gap:8px;flex-wrap:wrap;}
-  .hbtn{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:4px;cursor:pointer;font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:12px;letter-spacing:.5px;white-space:nowrap;}
-  .hbtn:hover{border-color:var(--accent);}
+  .hbtn{background:linear-gradient(155deg, var(--panel2) 0%, var(--panel) 100%);border:1px solid var(--border);color:var(--text);padding:10px 16px;border-radius:12px;cursor:pointer;font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:12px;letter-spacing:.5px;white-space:nowrap;box-shadow:0 4px 14px -6px rgba(0,0,0,.6);transition:transform .12s ease;}
+  .hbtn:active{transform:scale(.95);border-color:var(--accent);}
   .status{margin-top:14px;border:1px solid var(--border);background:var(--panel);padding:10px 14px;border-radius:4px;font-size:13px;color:var(--text);line-height:1.5;}
   .status b{color:var(--accent2);}
   .pillars{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
@@ -77,19 +77,20 @@
   .cell .done{position:absolute;top:3px;right:4px;font-size:10px;color:var(--income);}
   .cell.today{outline:2px solid var(--accent2);}
 
-  #overlay, #notesOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;}
-  #overlay.open, #notesOverlay.open{display:flex;}
-  #panel, #notesPanel{background:var(--panel);width:100%;max-width:560px;max-height:88vh;overflow-y:auto;border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;padding:0;animation:slideup .18s ease-out;}
+  #overlay, #notesOverlay, #calendarOverlay, #strategyOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  #overlay.open, #notesOverlay.open, #calendarOverlay.open, #strategyOverlay.open{display:flex;}
+  #panel, #notesPanel, #calendarPanel, #strategyPanel{background:var(--panel);width:100%;max-width:560px;max-height:88vh;overflow-y:auto;border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;padding:0;animation:slideup .18s ease-out;}
   @keyframes slideup{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
   @media(min-width:600px){
-    #overlay, #notesOverlay{align-items:center;}
-    #panel, #notesPanel{border-radius:8px;border-bottom:1px solid var(--border);}
+    #overlay, #notesOverlay, #calendarOverlay, #strategyOverlay{align-items:center;}
+    #panel, #notesPanel, #calendarPanel, #strategyPanel{border-radius:8px;border-bottom:1px solid var(--border);}
   }
   .ticket-head{padding:16px 20px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--panel);}
   .ticket-head .no{font-family:'IBM Plex Mono',monospace;color:var(--muted);font-size:11px;}
   .ticket-head h3{font-family:'Oswald',sans-serif;text-transform:uppercase;margin:2px 0 0;font-size:20px;letter-spacing:.5px;}
   .ticket-head .phase{color:var(--accent2);font-size:12px;margin-top:4px;}
-  .closeBtn{background:none;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:14px;flex-shrink:0;}
+  .closeBtn{background:var(--panel2);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;flex-shrink:0;transition:transform .12s ease;}
+  .closeBtn:active{transform:scale(.9);border-color:var(--accent);color:var(--text);}
   .ticket-body{padding:16px 20px 22px;}
   .block{margin-bottom:16px;}
   .block-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
@@ -129,68 +130,139 @@
   .backup-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
   .backup-row button{flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;cursor:pointer;font-size:12px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.4px;}
   .backup-row button:hover{border-color:var(--accent);}
+
+  .infobox{margin-top:14px;}
+  .infobox summary{cursor:pointer;font-size:11.5px;color:var(--muted);letter-spacing:.3px;}
+  .infobox p{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.6;}
+
+  .agenda-widget{padding:14px 20px;border-bottom:1px dashed var(--border);}
+  .agenda-widget-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:13px;color:var(--muted);letter-spacing:1px;margin-bottom:10px;}
+  .agenda-item{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+  .agenda-item:last-child{border-bottom:none;}
+  .agenda-item .adate{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent2);min-width:64px;}
+  .agenda-item .atext{font-size:13.5px;flex:1;}
+  .agenda-empty{color:var(--muted);font-size:12.5px;}
+
+  .agenda-list{list-style:none;margin:0 0 10px;padding:0;}
+  .agenda-list li{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.5px;}
+  .agenda-list li .atime{font-family:'IBM Plex Mono',monospace;color:var(--accent2);font-size:12px;margin-right:6px;}
+  .agenda-form{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+  .agenda-form input[type=time]{width:84px;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;}
+  .agenda-form input[type=text]{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:4px;font-size:13px;}
+  .agenda-form button{background:var(--travel);border:none;color:#0b1a30;font-weight:600;padding:7px 12px;border-radius:4px;cursor:pointer;font-size:12px;text-transform:uppercase;letter-spacing:.4px;}
+  .cell .pin{position:absolute;top:3px;left:4px;font-size:8px;color:var(--travel);}
+
+  /* --- Rediseño móvil: velocímetros neón + botones --- */
+  .gauges-wrap{padding:14px 16px 6px;}
+  .gauges-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .gauge-card{background:radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--gcolor) 14%, var(--panel)) 0%, var(--panel) 70%);border:1px solid var(--border);box-shadow:0 0 14px -6px var(--gcolor);border-radius:12px;padding:10px 8px 12px;text-align:center;}
+  .gauge-svg{width:100%;height:auto;display:block;overflow:visible;}
+  .gauge-bg{fill:none;stroke:var(--panel2);stroke-width:11;stroke-linecap:round;}
+  .gauge-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 3px var(--gcolor)) drop-shadow(0 0 8px var(--gcolor));}
+  .gauge-needle{stroke:#fff;stroke-width:2.5;stroke-linecap:round;transition:all .7s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 3px #fff);}
+  .gauge-pivot{fill:#fff;filter:drop-shadow(0 0 3px #fff);}
+  .gauge-pct{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:22px;margin-top:2px;color:var(--gcolor);text-shadow:0 0 6px var(--gcolor),0 0 16px var(--gcolor);}
+  .gauge-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:.4px;color:var(--text);margin-top:4px;}
+  .gauge-sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .gauges-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .gauges-foot input{background:var(--panel2);color:var(--text);border:1px solid var(--border);padding:5px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;border-radius:2px;}
+
+  .button-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px 16px 20px;}
+  .bigbtn{position:relative;background:linear-gradient(155deg, var(--panel2) 0%, var(--panel) 100%);border:1px solid var(--border);color:var(--text);padding:16px 6px 14px;border-radius:16px;cursor:pointer;font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11.5px;letter-spacing:.4px;text-align:center;line-height:1.3;box-shadow:0 4px 14px -6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04);transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;-webkit-tap-highlight-color:transparent;}
+  .bigbtn .bigicon{display:block;font-size:22px;margin-bottom:6px;filter:drop-shadow(0 0 6px var(--btn-glow, transparent));}
+  .bigbtn:active{transform:scale(.95);box-shadow:0 2px 6px -3px rgba(0,0,0,.6);}
+  .bigbtn:nth-child(1){--btn-glow:#00eaff;}
+  .bigbtn:nth-child(2){--btn-glow:#3fb68b;}
+  .bigbtn:nth-child(3){--btn-glow:#ff9f1c;}
+  .bigbtn:nth-child(1):active, .bigbtn:nth-child(1):hover{border-color:#00eaff;}
+  .bigbtn:nth-child(2):active, .bigbtn:nth-child(2):hover{border-color:#3fb68b;}
+  .bigbtn:nth-child(3):active, .bigbtn:nth-child(3):hover{border-color:#ff9f1c;}
+
+  .agenda-widget-compact{padding:0 16px 14px;}
+  .sheet-head{padding:16px 20px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--panel);z-index:2;}
+  .sheet-head h3{font-family:'Oswald',sans-serif;text-transform:uppercase;margin:0;font-size:18px;letter-spacing:.5px;}
+  .sheet-body{padding:14px 20px 24px;}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="headtop">
-    <div>
-      <h1>Plan <span>HDCOPY3D</span> — Salud, Dinero, Estabilidad</h1>
-      <div class="sub" id="rangeLabel">14 agosto – 11 diciembre 2026. Toca cada día para ver tu orden de trabajo y marcar tareas hechas.</div>
-    </div>
-    <div class="headbtns">
-      <button class="hbtn" id="notesBtn">💶 Registro financiero</button>
-    </div>
-  </div>
-  <div class="status">Capital inicial: <b>0€</b>. Ingresos y gastos reales se registran en "Registro financiero" a medida que ocurren — nada se da por hecho automáticamente.<br>
-  Las reparaciones (moto + coche + fuga de agua) rondan realmente <b>500€–880€</b> en talleres reales. El plan las reparte poco a poco: no hace falta tenerlo todo junto.</div>
-  <div class="pillars">
-    <div class="pillar">1. <b>Salud</b></div>
-    <div class="pillar">2. <b>Dinero</b></div>
-    <div class="pillar">3. <b>Estabilidad</b></div>
-  </div>
+  <h1>HDCOPY3D — <span>Agenda y Cuentas</span></h1>
 </header>
 
 <div class="saldo-wrap">
   <div class="saldo-box">
-    <div class="saldo-label">Saldo real actual (ingresos − gastos registrados)</div>
+    <div class="saldo-label">Saldo real actual</div>
     <div class="saldo-num" id="saldoNum">…</div>
     <div class="saldo-sub" id="saldoSub"></div>
   </div>
 </div>
 
-<div class="progress-wrap">
-  <div class="progress-title">Ahorros reales por objetivo</div>
-  <div class="progress-note">Esto se calcula solo: cada ingreso que registras se reparte al 30% coche / 30% moto / 20% viaje / 20% inversión. Cada gasto resta de ahí: si lo marcas como "sacado de" un bloque, resta solo de ese; si no lo marcas, resta un poco de los 4 a la vez — así la suma de estos 4 números nunca puede ser mayor que tu saldo real de arriba. La cifra pequeña "plan a esta fecha" sigue siendo solo la referencia de a dónde deberías llegar — no lo real.</div>
-  <div id="dateSelector">
-    <span class="mono" style="font-size:12px;color:var(--muted);">Comparar con el plan en fecha:</span>
+<div class="gauges-wrap">
+  <div class="gauges-grid" id="gaugesGrid">Cargando…</div>
+  <div class="gauges-foot">
+    <span class="mono" style="font-size:11px;color:var(--muted);">Plan en fecha: <span id="planDateLabel"></span></span>
     <input type="date" id="datePicker" value="2026-08-14">
   </div>
-  <div id="bars" style="margin-top:14px;">Cargando…</div>
+  <details class="infobox">
+    <summary>ⓘ Cómo se calcula esto</summary>
+    <p>Cada ingreso que registras se reparte 30% coche / 30% moto / 20% viaje / 20% inversión. Cada gasto resta de ahí: marcado a un bloque resta solo de ese, sin marcar resta un poco de los 4 — la suma nunca pasa de tu saldo real. El número pequeño bajo cada velocímetro es solo la referencia del plan a la fecha elegida, no lo real. Las reparaciones (moto+coche+fuga) rondan 500€–880€ reales; el plan las reparte poco a poco.</p>
+  </details>
 </div>
 
-<details class="strategy">
-  <summary>Estrategia de captación de clientes para HDCOPY3D (toca para ver)</summary>
-  <ol>
-    <li><b>Puerta fría local:</b> visita 2 negocios/semana (bares, tiendas, peluquerías) con una muestra física de vinilo o pieza 3D. La muestra vende más que la explicación.</li>
-    <li><b>Pack hostelería:</b> ofrece "menú digital + cartelería + rótulo" como paquete a bares/restaurantes nuevos, con descuento de lanzamiento el primer mes.</li>
-    <li><b>Prueba social digital:</b> un vídeo corto antes/después por semana en Instagram/TikTok. No hace falta perfección, hace falta constancia.</li>
-    <li><b>Producto rápido de catálogo:</b> ten siempre 3-4 artículos personalizables (llaveros, placas, letras) listos para vender sin esperar a fabricar bajo pedido.</li>
-    <li><b>Reactivar clientes antiguos:</b> cada semana, contacta a un cliente pasado para pedir reseña o proponerle un nuevo servicio.</li>
-    <li><b>Regla de cobro:</b> ningún trabajo con materiales sin anticipo. Sin excepciones durante estos meses.</li>
-  </ol>
-</details>
+<div id="agendaWidget" class="agenda-widget-compact"></div>
 
-<div class="legend">
-  <span><i class="dot" style="background:var(--income);"></i>Electricidad (L-V)</span>
-  <span><i class="dot" style="background:var(--figon);"></i>El Figón</span>
-  <span><i class="dot" style="background:var(--off);"></i>Libre</span>
-  <span><i class="dot" style="background:var(--travel);"></i>Viaje Marruecos</span>
-  <span><i class="dot" style="background:var(--rent);"></i>Día de alquiler</span>
+<div class="button-row">
+  <button class="bigbtn" id="openCalendarBtn"><span class="bigicon">📅</span>Calendario</button>
+  <button class="bigbtn" id="notesBtn"><span class="bigicon">💶</span>Cuentas</button>
+  <button class="bigbtn" id="openStrategyBtn"><span class="bigicon">🎯</span>Captar clientes</button>
 </div>
 
-<div id="calendar"></div>
+<div id="calendarOverlay">
+  <div id="calendarPanel">
+    <div class="sheet-head">
+      <h3>📅 Calendario</h3>
+      <button class="closeBtn" id="closeCalendarBtn">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="sub" id="rangeLabel">14 agosto – 11 diciembre 2026. Toca cada día para ver tareas, citas y dinero.</div>
+      <div class="pillars">
+        <div class="pillar">1. <b>Salud</b></div>
+        <div class="pillar">2. <b>Dinero</b></div>
+        <div class="pillar">3. <b>Estabilidad</b></div>
+      </div>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--income);"></i>Electricidad (L-V)</span>
+        <span><i class="dot" style="background:var(--figon);"></i>El Figón</span>
+        <span><i class="dot" style="background:var(--off);"></i>Libre</span>
+        <span><i class="dot" style="background:var(--travel);"></i>Viaje Marruecos</span>
+        <span><i class="dot" style="background:var(--rent);"></i>Día de alquiler</span>
+        <span>📌 Tiene citas/notas</span>
+        <span>✓ Tareas completadas</span>
+      </div>
+      <div id="calendar"></div>
+    </div>
+  </div>
+</div>
+
+<div id="strategyOverlay">
+  <div id="strategyPanel">
+    <div class="sheet-head">
+      <h3>🎯 Captación de clientes</h3>
+      <button class="closeBtn" id="closeStrategyBtn">✕</button>
+    </div>
+    <div class="sheet-body">
+      <ol style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.8;">
+        <li><b>Puerta fría local:</b> visita 2 negocios/semana (bares, tiendas, peluquerías) con una muestra física de vinilo o pieza 3D. La muestra vende más que la explicación.</li>
+        <li><b>Pack hostelería:</b> ofrece "menú digital + cartelería + rótulo" como paquete a bares/restaurantes nuevos, con descuento de lanzamiento el primer mes.</li>
+        <li><b>Prueba social digital:</b> un vídeo corto antes/después por semana en Instagram/TikTok. No hace falta perfección, hace falta constancia.</li>
+        <li><b>Producto rápido de catálogo:</b> ten siempre 3-4 artículos personalizables (llaveros, placas, letras) listos para vender sin esperar a fabricar bajo pedido.</li>
+        <li><b>Reactivar clientes antiguos:</b> cada semana, contacta a un cliente pasado para pedir reseña o proponerle un nuevo servicio.</li>
+        <li><b>Regla de cobro:</b> ningún trabajo con materiales sin anticipo. Sin excepciones durante estos meses.</li>
+      </ol>
+    </div>
+  </div>
+</div>
 
 <div id="overlay"><div id="panel"></div></div>
 <div id="notesOverlay"><div id="notesPanel"></div></div>
@@ -210,7 +282,7 @@ const SEED = [
   {id:2, date:"2026-08-15", type:"gasto", text:"Tabaco (paquete de Ducado rubio)", amount:5.5},
   {id:3, date:"2026-08-15", type:"gasto", text:"Comida para los perros", amount:10}
 ];
-let APP = {registro:[], tasks:{}};
+let APP = {registro:[], tasks:{}, agenda:{}};
 let lastStatus = "cargando";
 
 async function loadAppData(){
@@ -247,6 +319,51 @@ async function refreshAllUI(){
   await renderNotesList();
   await renderSaldo();
   await renderBars();
+  renderAgendaWidget();
+}
+
+/* ============ AGENDA (citas, reuniones, notas por día) ============ */
+function agendaFor(ds){ return Array.isArray(APP.agenda[ds]) ? APP.agenda[ds] : []; }
+async function addAgendaItem(ds, time, text){
+  if(!text.trim()) return;
+  const list = agendaFor(ds).slice();
+  list.push({id:Date.now(), time:time||"", text:text.trim()});
+  list.sort((a,b)=> (a.time||"99:99").localeCompare(b.time||"99:99"));
+  APP.agenda[ds] = list;
+  await persistAppData();
+}
+async function deleteAgendaItem(ds, id){
+  APP.agenda[ds] = agendaFor(ds).filter(it=>it.id!==id);
+  if(APP.agenda[ds].length===0) delete APP.agenda[ds];
+  await persistAppData();
+}
+function renderAgendaWidget(){
+  const el = document.getElementById("agendaWidget");
+  if(!el) return;
+  const todayD = new Date(); todayD.setHours(0,0,0,0);
+  const upcoming = [];
+  Object.keys(APP.agenda).sort().forEach(ds=>{
+    const d = new Date(ds+"T00:00:00");
+    if(d < todayD) return;
+    agendaFor(ds).forEach(it=> upcoming.push({ds, ...it}));
+  });
+  upcoming.sort((a,b)=> a.ds.localeCompare(b.ds) || (a.time||"99:99").localeCompare(b.time||"99:99"));
+  const next = upcoming.slice(0,3);
+  el.innerHTML = `<div class="agenda-widget-title">📅 Próximas citas</div>` +
+    (next.length===0
+      ? `<div class="agenda-empty">Nada apuntado todavía. Ábrelo desde cualquier día del calendario para añadir una cita, reunión o nota.</div>`
+      : next.map(it=>{
+          const d = new Date(it.ds+"T00:00:00");
+          const label = d.toLocaleDateString("es-ES",{weekday:"short", day:"numeric", month:"short"});
+          return `<div class="agenda-item" data-ds="${it.ds}"><span class="adate">${label}${it.time?" · "+it.time:""}</span><span class="atext">${it.text}</span></div>`;
+        }).join(""));
+  el.querySelectorAll(".agenda-item").forEach(row=>{
+    row.addEventListener("click", ()=>{
+      const ds = row.getAttribute("data-ds");
+      const idx = Math.round((new Date(ds+"T00:00:00")-START)/86400000);
+      if(idx>=0 && idx<DAYS) openPanel(idx);
+    });
+  });
 }
 
 /* ============ CONFIG ============ */
@@ -512,6 +629,24 @@ function markCellDone(ds, done){
     if(!mark){ mark = document.createElement("div"); mark.className="done"; mark.textContent="✓"; cell.appendChild(mark); }
   } else if(mark){ mark.remove(); }
 }
+function markCellPin(ds, has){
+  const cell = cellRefs[ds];
+  if(!cell) return;
+  let mark = cell.querySelector(".pin");
+  if(has){
+    if(!mark){ mark = document.createElement("div"); mark.className="pin"; mark.textContent="📌"; cell.appendChild(mark); }
+  } else if(mark){ mark.remove(); }
+}
+function refreshAllCellMarkers(){
+  for(let idx=0; idx<DAYS; idx++){
+    const ds = iso(addDays(START, idx));
+    const state = Array.isArray(APP.tasks[ds]) ? APP.tasks[ds] : [];
+    const dayTasks = buildDay(idx).tasks;
+    const allDone = dayTasks.length>0 && dayTasks.every((_,k)=>!!state[k]);
+    markCellDone(ds, allDone);
+    markCellPin(ds, agendaFor(ds).length>0);
+  }
+}
 
 /* ============ PANEL DEL DÍA ============ */
 const overlay = document.getElementById("overlay");
@@ -538,6 +673,15 @@ async function openPanel(idx){
         <div class="block-label">Tareas de hoy (toca para marcar hecha)</div>
         <ul class="tasklist" id="taskList">${info.tasks.map((t,idx2)=>`<li data-idx="${idx2}"><input type="checkbox" id="chk${idx2}"><span>${t}</span></li>`).join("")}</ul>
       </div>
+      <div class="block">
+        <div class="block-label">📅 Citas, reuniones y notas</div>
+        <ul class="agenda-list" id="agendaList"></ul>
+        <div class="agenda-form">
+          <input type="time" id="agendaTime">
+          <input type="text" id="agendaText" placeholder="Médico, reunión con..., recordatorio...">
+          <button id="agendaAddBtn">Añadir</button>
+        </div>
+      </div>
       ${info.money.length? `<div class="block">
         <div class="block-label">Dinero</div>
         <div class="block-content">${info.money.map(m=>`<div class="money-line"><span>${m[0]}</span><span>${m[1]}</span></div>`).join("")}</div>
@@ -549,8 +693,35 @@ async function openPanel(idx){
       </div>
     </div>
   `;
-  overlay.classList.add("open");
+  overlay.classList.add("open"); overlay.style.display="flex";
   document.getElementById("closeBtn").addEventListener("click", closePanel);
+
+  function renderAgendaList(){
+    const list = agendaFor(info.ds);
+    const ul = document.getElementById("agendaList");
+    ul.innerHTML = list.length===0
+      ? `<li style="border-bottom:none;"><span class="atext" style="color:var(--muted);">Nada apuntado para este día.</span></li>`
+      : list.map(it=>`<li data-id="${it.id}"><span>${it.time?`<span class="atime">${it.time}</span>`:""}${it.text}</span><button class="delBtn" data-id="${it.id}">✕</button></li>`).join("");
+    ul.querySelectorAll(".delBtn").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        await deleteAgendaItem(info.ds, Number(btn.getAttribute("data-id")));
+        renderAgendaList();
+        markCellPin(info.ds, agendaFor(info.ds).length>0);
+        renderAgendaWidget();
+      });
+    });
+  }
+  renderAgendaList();
+  document.getElementById("agendaAddBtn").addEventListener("click", async ()=>{
+    const t = document.getElementById("agendaText");
+    const h = document.getElementById("agendaTime");
+    if(!t.value.trim()) return;
+    await addAgendaItem(info.ds, h.value, t.value);
+    t.value=""; h.value="";
+    renderAgendaList();
+    markCellPin(info.ds, agendaFor(info.ds).length>0);
+    renderAgendaWidget();
+  });
 
   const state = Array.isArray(APP.tasks[info.ds]) ? APP.tasks[info.ds].slice() : [];
 
@@ -596,7 +767,7 @@ async function openPanel(idx){
     }
   }
 }
-function closePanel(){ overlay.classList.remove("open"); }
+function closePanel(){ overlay.classList.remove("open"); overlay.style.display="none"; }
 overlay.addEventListener("click", (e)=>{ if(e.target===overlay) closePanel(); });
 
 /* ============ REGISTRO FINANCIERO (ingresos, gastos, deudas, notas) ============ */
@@ -665,11 +836,32 @@ function computeRealBuckets(entries){
   return state;
 }
 
-const barsEl = document.getElementById("bars");
+const gaugesEl = document.getElementById("gaugesGrid");
+const planDateLabel = document.getElementById("planDateLabel");
 const picker = document.getElementById("datePicker");
 picker.min = iso(START);
 picker.max = iso(addDays(START,DAYS-1));
 picker.value = TODAY_ISO >= iso(START) && TODAY_ISO <= iso(addDays(START,DAYS-1)) ? TODAY_ISO : iso(START);
+
+function gaugeSVG(pct, colorVar){
+  const r = 46, cx = 60, cy = 60;
+  const circumference = Math.PI*r;
+  const clamped = Math.max(0, Math.min(100, pct));
+  const angle = Math.PI*(1-clamped/100);
+  const nr = r-10;
+  const nx = (cx + nr*Math.cos(angle)).toFixed(1);
+  const ny = (cy - nr*Math.sin(angle)).toFixed(1);
+  const dashOffset = (circumference*(1-clamped/100)).toFixed(2);
+  return {
+    circumference,
+    html: `<svg viewBox="0 0 120 64" class="gauge-svg">
+      <path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}" class="gauge-bg"/>
+      <path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}" class="gauge-fill" data-target="${dashOffset}" style="stroke:${colorVar};stroke-dasharray:${circumference.toFixed(2)};stroke-dashoffset:${circumference.toFixed(2)};"/>
+      <line x1="${cx}" y1="${cy}" x2="${cx-nr}" y2="${cy}" class="gauge-needle" data-cx="${cx}" data-cy="${cy}" data-nx="${nx}" data-ny="${ny}"/>
+      <circle cx="${cx}" cy="${cy}" r="4" class="gauge-pivot"/>
+    </svg>`
+  };
+}
 
 async function renderBars(){
   const d = new Date(picker.value+"T00:00:00");
@@ -678,27 +870,60 @@ async function renderBars(){
   const plan = simulateFunds(idx);
   const entries = await getEntries();
   const real = computeRealBuckets(entries);
+  planDateLabel.textContent = d.toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"});
 
   const rows = [
-    {key:"car", label:"Coche (ruedas + fuga de agua)", target:CAR_TARGET, color:"var(--rent)"},
-    {key:"moto", label:"Moto (ruedas Harley)", target:MOTO_TARGET, color:"var(--off)"},
-    {key:"trip", label:"Viaje a Marruecos", target:TRIP_TARGET, color:"var(--travel)"},
-    {key:"invest", label:"Inversión HDCOPY3D", target:Math.max(Math.round(real.invest/50)*50,300), color:"var(--accent)"}
+    {key:"car", label:"Coche", target:CAR_TARGET, color:"#ff2965"},
+    {key:"moto", label:"Moto", target:MOTO_TARGET, color:"#00eaff"},
+    {key:"trip", label:"Viaje", target:TRIP_TARGET, color:"#5b8cff"},
+    {key:"invest", label:"Inversión", target:Math.max(Math.round(real.invest/50)*50,300), color:"#ffcc00"}
   ];
 
-  barsEl.innerHTML = rows.map(r=>{
-    const pct = Math.min(100, Math.round((real[r.key]/r.target)*100));
-    return `<div class="bar-row">
-      <div class="bar-label"><span>${r.label}</span><span class="tgt">objetivo ${r.target}€</span></div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${r.color};"></div></div>
-      <div class="bar-foot">
-        <span class="plan-ref">Plan a esta fecha: ${plan[r.key]}€</span>
-        <span class="real-edit">Real (automático): <b>${real[r.key].toFixed(2)}€</b></span>
-      </div>
+  gaugesEl.innerHTML = rows.map(r=>{
+    const pct = (real[r.key]/r.target)*100;
+    const g = gaugeSVG(pct, r.color);
+    return `<div class="gauge-card" style="--gcolor:${r.color};">
+      ${g.html}
+      <div class="gauge-pct">${Math.round(Math.min(100,pct))}%</div>
+      <div class="gauge-label">${r.label}</div>
+      <div class="gauge-sub">${real[r.key].toFixed(0)}€ / ${r.target}€ · plan ${plan[r.key]}€</div>
     </div>`;
   }).join("");
+
+  // dispara la animación de aguja + relleno en el siguiente frame
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      gaugesEl.querySelectorAll(".gauge-fill").forEach(p=>{ p.style.strokeDashoffset = p.getAttribute("data-target"); });
+      gaugesEl.querySelectorAll(".gauge-needle").forEach(n=>{ n.setAttribute("x2", n.getAttribute("data-nx")); n.setAttribute("y2", n.getAttribute("data-ny")); });
+    });
+  });
 }
 picker.addEventListener("change", renderBars);
+
+
+/* ---------- Apertura/cierre de paneles: por clase Y por estilo directo,
+   para que abran seguro pase lo que pase con la caché del CSS ---------- */
+function openSheet(id){
+  const el = document.getElementById(id);
+  el.classList.add("open");
+  el.style.display = "flex";
+}
+function closeSheet(id){
+  const el = document.getElementById(id);
+  el.classList.remove("open");
+  el.style.display = "none";
+}
+document.getElementById("openCalendarBtn").addEventListener("click", ()=> openSheet("calendarOverlay"));
+document.getElementById("closeCalendarBtn").addEventListener("click", ()=> closeSheet("calendarOverlay"));
+document.getElementById("calendarOverlay").addEventListener("click", (e)=>{
+  if(e.target.id==="calendarOverlay") closeSheet("calendarOverlay");
+});
+document.getElementById("openStrategyBtn").addEventListener("click", ()=> openSheet("strategyOverlay"));
+document.getElementById("closeStrategyBtn").addEventListener("click", ()=> closeSheet("strategyOverlay"));
+document.getElementById("strategyOverlay").addEventListener("click", (e)=>{
+  if(e.target.id==="strategyOverlay") closeSheet("strategyOverlay");
+});
+
 
 /* ---------- Panel Registro financiero ---------- */
 const notesOverlay = document.getElementById("notesOverlay");
@@ -756,9 +981,9 @@ async function openNotes(){
       <div class="muted-note">No hace falta hacer nada: cada cambio se guarda solo en este navegador. Si cambias de móvil, de navegador, o borras datos de navegación, usa "Exportar" antes y "Importar" después para no perder nada.</div>
     </div>
   `;
-  notesOverlay.classList.add("open");
-  document.getElementById("closeNotesBtn").addEventListener("click", ()=>notesOverlay.classList.remove("open"));
-  notesOverlay.onclick = (e)=>{ if(e.target===notesOverlay) notesOverlay.classList.remove("open"); };
+  notesOverlay.classList.add("open"); notesOverlay.style.display="flex";
+  document.getElementById("closeNotesBtn").addEventListener("click", ()=>{ notesOverlay.classList.remove("open"); notesOverlay.style.display="none"; });
+  notesOverlay.onclick = (e)=>{ if(e.target===notesOverlay){ notesOverlay.classList.remove("open"); notesOverlay.style.display="none"; } };
   document.getElementById("addNote").addEventListener("click", addNoteEntry);
   document.getElementById("ntype").addEventListener("change", (e)=>{
     document.getElementById("nbucket").style.display = e.target.value==="gasto" ? "block" : "none";
@@ -844,7 +1069,7 @@ async function importAll(file){
   try{
     const text = await file.text();
     const data = JSON.parse(text);
-    APP = Object.assign({registro:[],tasks:{}}, data);
+    APP = Object.assign({registro:[],tasks:{},agenda:{}}, data);
     await persistAppData();
     alert("Datos importados correctamente. La página se va a recargar.");
     location.reload();
@@ -855,13 +1080,15 @@ async function importAll(file){
 (async function init(){
   const loaded = await loadAppData();
   if(loaded){
-    APP = Object.assign({registro:[], tasks:{}}, loaded);
+    APP = Object.assign({registro:[], tasks:{}, agenda:{}}, loaded);
   } else {
-    APP = {registro: SEED, tasks:{}};
+    APP = {registro: SEED, tasks:{}, agenda:{}};
     await persistAppData();
   }
   await renderSaldo();
   await renderBars();
+  renderAgendaWidget();
+  refreshAllCellMarkers();
 })();
 </script>
 </body>
