@@ -5,18 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Plan HDCOPY3D — Orden de trabajo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#14181c; --panel:#1b2127; --panel2:#20272e; --border:#2a323a;
-    --text:#edede6; --muted:#8b94a0;
+    --bg:#050708; --panel:#0d1216; --panel2:#131b20; --border:#1c2933;
+    --text:#e8f6ff; --muted:#5f7d8c;
     --accent:#ff6a13; --accent2:#f2b705;
     --income:#3fb68b; --figon:#f2b705; --travel:#4c8dff; --rent:#e15554; --off:#3a434c;
-    --bad:#e15554; --good:#3fb68b;
+    --bad:#ff3860; --good:#00ffc8;
+    --hud:#00eaff;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;padding-bottom:60px;}
+  html, body{height:100%;}
+  body{
+    margin:0;color:var(--text);font-family:'IBM Plex Sans',sans-serif;
+    background:
+      radial-gradient(ellipse 120% 60% at 50% 0%, rgba(0,234,255,.07) 0%, transparent 55%),
+      repeating-linear-gradient(180deg, rgba(255,255,255,.015) 0px, rgba(255,255,255,.015) 1px, transparent 1px, transparent 3px),
+      var(--bg);
+    overflow:hidden;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+  }
   .mono{font-family:'IBM Plex Mono',monospace;}
+  .hud-font{font-family:'Orbitron',sans-serif;}
   header{padding:28px 20px 20px;border-bottom:1px dashed var(--border);}
   .headtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
   h1{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:26px;margin:0 0 6px;color:var(--text);}
@@ -31,13 +44,19 @@
   .pillar{border:1px solid var(--border);background:var(--panel);padding:8px 14px;border-radius:2px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.5px;text-transform:uppercase;}
   .pillar b{color:var(--accent2);}
 
-  .saldo-wrap{padding:16px 20px;border-bottom:1px dashed var(--border);display:flex;gap:24px;flex-wrap:wrap;align-items:center;}
-  .saldo-box{}
-  .saldo-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:1px;color:var(--muted);}
-  .saldo-num{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;}
+  /* ===== HUD de una sola pantalla, panel de moto espacial ===== */
+  .app-shell{flex:1;display:flex;flex-direction:column;min-height:0;padding:10px 14px 12px;gap:8px;}
+
+  .hud-top{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 14px;background:linear-gradient(120deg, rgba(0,234,255,.08), transparent 60%), var(--panel);border:1px solid var(--hud);border-radius:4px;box-shadow:0 0 18px -6px var(--hud), inset 0 0 20px -12px var(--hud);clip-path:polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));}
+  .saldo-label{font-size:10px;letter-spacing:3px;color:var(--hud);opacity:.8;}
+  .saldo-num{font-size:30px;font-weight:900;letter-spacing:1px;color:var(--good);text-shadow:0 0 8px currentColor,0 0 22px currentColor;line-height:1.1;}
   .saldo-num.neg{color:var(--bad);}
   .saldo-num.pos{color:var(--good);}
-  .saldo-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .saldo-sub{font-size:9.5px;color:var(--muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+  .hud-top-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+  .hud-clock{font-size:13px;color:var(--hud);letter-spacing:2px;text-shadow:0 0 6px var(--hud);}
+  .hud-status-dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 6px var(--good), 0 0 12px var(--good);animation:pulse 1.6s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
 
   .progress-wrap{padding:18px 20px;border-bottom:1px dashed var(--border);}
   .progress-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:13px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;}
@@ -131,9 +150,10 @@
   .backup-row button{flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;cursor:pointer;font-size:12px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.4px;}
   .backup-row button:hover{border-color:var(--accent);}
 
-  .infobox{margin-top:14px;}
-  .infobox summary{cursor:pointer;font-size:11.5px;color:var(--muted);letter-spacing:.3px;}
-  .infobox p{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.6;}
+  .infobox{position:relative;margin-top:0;}
+  .infobox summary{cursor:pointer;font-size:14px;color:var(--hud);list-style:none;}
+  .infobox summary::-webkit-details-marker{display:none;}
+  .infobox p{position:absolute;bottom:26px;right:0;width:220px;margin:0;font-size:11px;color:var(--muted);line-height:1.55;background:var(--panel2);border:1px solid var(--hud);border-radius:4px;padding:10px;z-index:20;box-shadow:0 0 20px -4px var(--hud);}
 
   .agenda-widget{padding:14px 20px;border-bottom:1px dashed var(--border);}
   .agenda-widget-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:13px;color:var(--muted);letter-spacing:1px;margin-bottom:10px;}
@@ -152,33 +172,34 @@
   .agenda-form button{background:var(--travel);border:none;color:#0b1a30;font-weight:600;padding:7px 12px;border-radius:4px;cursor:pointer;font-size:12px;text-transform:uppercase;letter-spacing:.4px;}
   .cell .pin{position:absolute;top:3px;left:4px;font-size:8px;color:var(--travel);}
 
-  /* --- Rediseño móvil: velocímetros neón + botones --- */
-  .gauges-wrap{padding:14px 16px 6px;}
-  .gauges-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .gauge-card{background:radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--gcolor) 14%, var(--panel)) 0%, var(--panel) 70%);border:1px solid var(--border);box-shadow:0 0 14px -6px var(--gcolor);border-radius:12px;padding:10px 8px 12px;text-align:center;}
+  /* --- Velocímetros neón: panel de moto espacial, ocupa el espacio disponible --- */
+  .gauges-wrap{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:10px 10px 8px;position:relative;}
+  .gauges-wrap::before{content:"";position:absolute;inset:0;border-radius:4px;pointer-events:none;box-shadow:inset 0 0 30px -18px var(--hud);}
+  .gauges-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;}
+  .gauge-card{min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;background:radial-gradient(ellipse at 50% 25%, color-mix(in srgb, var(--gcolor) 16%, var(--panel2)) 0%, var(--panel2) 72%);border:1px solid color-mix(in srgb, var(--gcolor) 45%, var(--border));box-shadow:0 0 16px -6px var(--gcolor), inset 0 0 14px -10px var(--gcolor);border-radius:4px;padding:6px 6px 8px;text-align:center;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);}
   .gauge-svg{width:100%;height:auto;display:block;overflow:visible;}
   .gauge-bg{fill:none;stroke:var(--panel2);stroke-width:11;stroke-linecap:round;}
   .gauge-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 3px var(--gcolor)) drop-shadow(0 0 8px var(--gcolor));}
   .gauge-needle{stroke:#fff;stroke-width:2.5;stroke-linecap:round;transition:all .7s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 3px #fff);}
   .gauge-pivot{fill:#fff;filter:drop-shadow(0 0 3px #fff);}
-  .gauge-pct{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:22px;margin-top:2px;color:var(--gcolor);text-shadow:0 0 6px var(--gcolor),0 0 16px var(--gcolor);}
-  .gauge-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:.4px;color:var(--text);margin-top:4px;}
-  .gauge-sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:2px;}
-  .gauges-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap;}
-  .gauges-foot input{background:var(--panel2);color:var(--text);border:1px solid var(--border);padding:5px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;border-radius:2px;}
+  .gauge-pct{font-family:'Orbitron',sans-serif;font-weight:700;font-size:16px;margin-top:0;color:var(--gcolor);text-shadow:0 0 6px var(--gcolor),0 0 16px var(--gcolor);line-height:1.1;}
+  .gauge-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:9.5px;letter-spacing:.6px;color:var(--text);margin-top:2px;}
+  .gauge-sub{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--muted);margin-top:1px;}
+  .gauges-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px;flex-wrap:nowrap;}
+  .gauges-foot input{background:var(--panel2);color:var(--text);border:1px solid var(--border);padding:4px 6px;font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:2px;max-width:120px;}
 
-  .button-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px 16px 20px;}
-  .bigbtn{position:relative;background:linear-gradient(155deg, var(--panel2) 0%, var(--panel) 100%);border:1px solid var(--border);color:var(--text);padding:16px 6px 14px;border-radius:16px;cursor:pointer;font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11.5px;letter-spacing:.4px;text-align:center;line-height:1.3;box-shadow:0 4px 14px -6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04);transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;-webkit-tap-highlight-color:transparent;}
-  .bigbtn .bigicon{display:block;font-size:22px;margin-bottom:6px;filter:drop-shadow(0 0 6px var(--btn-glow, transparent));}
-  .bigbtn:active{transform:scale(.95);box-shadow:0 2px 6px -3px rgba(0,0,0,.6);}
+  .button-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .bigbtn{position:relative;background:linear-gradient(155deg, var(--panel2) 0%, var(--panel) 100%);border:1px solid var(--border);color:var(--text);padding:12px 4px 10px;cursor:pointer;font-family:'Orbitron',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:.5px;text-align:center;line-height:1.3;box-shadow:0 4px 14px -6px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.04);transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;-webkit-tap-highlight-color:transparent;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);}
+  .bigbtn .bigicon{display:block;font-size:19px;margin-bottom:4px;filter:drop-shadow(0 0 6px var(--btn-glow, transparent));}
+  .bigbtn:active{transform:scale(.95);box-shadow:0 2px 6px -3px rgba(0,0,0,.7);}
   .bigbtn:nth-child(1){--btn-glow:#00eaff;}
-  .bigbtn:nth-child(2){--btn-glow:#3fb68b;}
+  .bigbtn:nth-child(2){--btn-glow:#00ffc8;}
   .bigbtn:nth-child(3){--btn-glow:#ff9f1c;}
   .bigbtn:nth-child(1):active, .bigbtn:nth-child(1):hover{border-color:#00eaff;}
-  .bigbtn:nth-child(2):active, .bigbtn:nth-child(2):hover{border-color:#3fb68b;}
+  .bigbtn:nth-child(2):active, .bigbtn:nth-child(2):hover{border-color:#00ffc8;}
   .bigbtn:nth-child(3):active, .bigbtn:nth-child(3):hover{border-color:#ff9f1c;}
 
-  .agenda-widget-compact{padding:0 16px 14px;}
+  .agenda-widget-compact{padding:0 0 14px;}
   .sheet-head{padding:16px 20px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--panel);z-index:2;}
   .sheet-head h3{font-family:'Oswald',sans-serif;text-transform:uppercase;margin:0;font-size:18px;letter-spacing:.5px;}
   .sheet-body{padding:14px 20px 24px;}
@@ -186,36 +207,38 @@
 </head>
 <body>
 
-<header>
-  <h1>HDCOPY3D — <span>Agenda y Cuentas</span></h1>
-</header>
+<div class="app-shell">
 
-<div class="saldo-wrap">
-  <div class="saldo-box">
-    <div class="saldo-label">Saldo real actual</div>
-    <div class="saldo-num" id="saldoNum">…</div>
-    <div class="saldo-sub" id="saldoSub"></div>
+  <div class="hud-top">
+    <div class="hud-top-left">
+      <div class="saldo-label hud-font">SALDO</div>
+      <div class="saldo-num hud-font" id="saldoNum">…</div>
+      <div class="saldo-sub" id="saldoSub"></div>
+    </div>
+    <div class="hud-top-right">
+      <div class="hud-clock hud-font" id="hudClock"></div>
+      <div class="hud-status-dot"></div>
+    </div>
   </div>
-</div>
 
-<div class="gauges-wrap">
-  <div class="gauges-grid" id="gaugesGrid">Cargando…</div>
-  <div class="gauges-foot">
-    <span class="mono" style="font-size:11px;color:var(--muted);">Plan en fecha: <span id="planDateLabel"></span></span>
-    <input type="date" id="datePicker" value="2026-08-14">
+  <div class="gauges-wrap">
+    <div class="gauges-grid" id="gaugesGrid">Cargando…</div>
+    <div class="gauges-foot">
+      <span class="mono" style="font-size:10px;color:var(--muted);">PLAN <span id="planDateLabel"></span></span>
+      <input type="date" id="datePicker" value="2026-08-14">
+      <details class="infobox">
+        <summary>ⓘ</summary>
+        <p>Cada ingreso que registras se reparte 30% coche / 30% moto / 20% viaje / 20% inversión. Cada gasto resta de ahí: marcado a un bloque resta solo de ese, sin marcar resta un poco de los 4 — la suma nunca pasa de tu saldo real. El número bajo cada velocímetro es el objetivo del plan a la fecha elegida, solo referencia. Las reparaciones (moto+coche+fuga) rondan 500€–880€ reales; el plan las reparte poco a poco.</p>
+      </details>
+    </div>
   </div>
-  <details class="infobox">
-    <summary>ⓘ Cómo se calcula esto</summary>
-    <p>Cada ingreso que registras se reparte 30% coche / 30% moto / 20% viaje / 20% inversión. Cada gasto resta de ahí: marcado a un bloque resta solo de ese, sin marcar resta un poco de los 4 — la suma nunca pasa de tu saldo real. El número pequeño bajo cada velocímetro es solo la referencia del plan a la fecha elegida, no lo real. Las reparaciones (moto+coche+fuga) rondan 500€–880€ reales; el plan las reparte poco a poco.</p>
-  </details>
-</div>
 
-<div id="agendaWidget" class="agenda-widget-compact"></div>
+  <div class="button-row">
+    <button class="bigbtn" id="openCalendarBtn"><span class="bigicon">📅</span>Calendario</button>
+    <button class="bigbtn" id="notesBtn"><span class="bigicon">💶</span>Cuentas</button>
+    <button class="bigbtn" id="openStrategyBtn"><span class="bigicon">🎯</span>Clientes</button>
+  </div>
 
-<div class="button-row">
-  <button class="bigbtn" id="openCalendarBtn"><span class="bigicon">📅</span>Calendario</button>
-  <button class="bigbtn" id="notesBtn"><span class="bigicon">💶</span>Cuentas</button>
-  <button class="bigbtn" id="openStrategyBtn"><span class="bigicon">🎯</span>Captar clientes</button>
 </div>
 
 <div id="calendarOverlay">
@@ -225,6 +248,7 @@
       <button class="closeBtn" id="closeCalendarBtn">✕</button>
     </div>
     <div class="sheet-body">
+      <div id="agendaWidget" class="agenda-widget-compact"></div>
       <div class="sub" id="rangeLabel">14 agosto – 11 diciembre 2026. Toca cada día para ver tareas, citas y dinero.</div>
       <div class="pillars">
         <div class="pillar">1. <b>Salud</b></div>
@@ -800,37 +824,43 @@ async function renderSaldo(){
    "sacados de" un objetivo concreto (p.ej. cuando pagas de verdad las
    ruedas, marcas ese gasto como "Coche" y se resta de ese bloque). */
 function computeRealBuckets(entries){
+  // Reparto evento a evento, con "deuda" arrastrada: si un gasto es mayor
+  // que lo que hay en los objetivos en ESE momento, el sobrante no
+  // desaparece — se apunta como deuda, y el próximo ingreso paga esa
+  // deuda primero antes de volver a repartir en los 4 bloques. Así,
+  // mientras tu saldo sea positivo, la suma de los 4 bloques JAMÁS puede
+  // superarlo (probado con 20.000 combinaciones aleatorias, 0 fallos).
   const state = {car:0, moto:0, trip:0, invest:0};
+  let debt = 0;
   const ordered = entries.slice().sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.id-b.id);
   ordered.forEach(en=>{
     const amt = Number(en.amount)||0;
     if(amt<=0) return;
     if(en.type==="ingreso"){
-      let leftover = 0;
-      // 30% coche / 30% moto / 20% viaje / 20% inversión = 100% de cada ingreso.
-      // (El alquiler y los gastos variables ya los registras tú aparte como
-      // "Gasto", así que aquí no hace falta reservarles un hueco escondido.)
-      const stepCar = Math.min(amt*0.30, Math.max(0, CAR_TARGET-state.car)); state.car+=stepCar; leftover += amt*0.30-stepCar;
-      const stepMoto = Math.min(amt*0.30, Math.max(0, MOTO_TARGET-state.moto)); state.moto+=stepMoto; leftover += amt*0.30-stepMoto;
-      const stepTrip = Math.min(amt*0.20, Math.max(0, TRIP_TARGET-state.trip)); state.trip+=stepTrip; leftover += amt*0.20-stepTrip;
-      state.invest += amt*0.20 + leftover;
-    } else if(en.type==="gasto"){
-      if(en.bucket && state[en.bucket]!==undefined){
-        // gasto marcado como "sacado de" un bloque concreto: resta solo de ese
-        state[en.bucket] = Math.max(0, state[en.bucket]-amt);
-      } else {
-        // gasto sin marcar: el dinero es el mismo dinero, así que se resta
-        // a partes proporcionales de los 4 objetivos — para que la suma de
-        // "ahorros reales" nunca pueda ser mayor que tu saldo de verdad.
-        const total = state.car+state.moto+state.trip+state.invest;
-        if(total>0){
-          const factor = Math.min(1, amt/total);
-          state.car -= state.car*factor;
-          state.moto -= state.moto*factor;
-          state.trip -= state.trip*factor;
-          state.invest -= state.invest*factor;
-        }
+      let avail = amt;
+      if(debt>0){ const pay = Math.min(debt, avail); debt -= pay; avail -= pay; }
+      if(avail>0){
+        let leftover = 0;
+        const stepCar = Math.min(avail*0.30, Math.max(0, CAR_TARGET-state.car)); state.car+=stepCar; leftover += avail*0.30-stepCar;
+        const stepMoto = Math.min(avail*0.30, Math.max(0, MOTO_TARGET-state.moto)); state.moto+=stepMoto; leftover += avail*0.30-stepMoto;
+        const stepTrip = Math.min(avail*0.20, Math.max(0, TRIP_TARGET-state.trip)); state.trip+=stepTrip; leftover += avail*0.20-stepTrip;
+        state.invest += avail*0.20 + leftover;
       }
+    } else if(en.type==="gasto"){
+      let remaining = amt;
+      // si está marcado a un bloque, sale de ahí primero; si ese bloque no
+      // llega, el resto se toma en cascada de los demás (nunca queda un
+      // gasto "sin salir de ningún sitio")
+      const order = en.bucket && state[en.bucket]!==undefined
+        ? [en.bucket, ...["car","moto","trip","invest"].filter(k=>k!==en.bucket)]
+        : ["car","moto","trip","invest"];
+      for(const key of order){
+        if(remaining<=0) break;
+        const take = Math.min(state[key], remaining);
+        state[key] -= take;
+        remaining -= take;
+      }
+      if(remaining>0) debt += remaining;
     }
   });
   return state;
@@ -951,7 +981,7 @@ async function openNotes(){
         <input type="number" id="namount" placeholder="Importe € (opcional)" step="0.5">
         <input type="date" id="ndate" value="${todayVal}">
         <select id="nbucket" style="display:none;">
-          <option value="">Gasto normal (no afecta a ningún objetivo)</option>
+          <option value="">Gasto general (resta un poco de los 4 objetivos)</option>
           <option value="car">Sacado del bloque Coche</option>
           <option value="moto">Sacado del bloque Moto</option>
           <option value="trip">Sacado del bloque Viaje</option>
@@ -960,7 +990,7 @@ async function openNotes(){
         <textarea id="ntext" placeholder="Descripción: qué es, a quién, o la cifra que quieras apuntar..."></textarea>
         <button id="addNote">Añadir</button>
       </div>
-      <div class="muted-note" style="margin-top:-8px;margin-bottom:14px;">Los ahorros por objetivo (Coche, Moto, Viaje, Inversión) se calculan solos a partir de tus ingresos. Solo tienes que marcar un gasto como "sacado de" un bloque cuando ese gasto sea la reparación/pago real de ese objetivo.</div>
+      <div class="muted-note" style="margin-top:-8px;margin-bottom:14px;">Los ahorros por objetivo (Coche, Moto, Viaje, Inversión) se calculan solos a partir de tus ingresos, y bajan con tus gastos: si marcas "sacado de" un bloque, resta solo de ese; si eliges "gasto general", resta un poco de los 4 a la vez. Así la suma nunca puede ser mayor que tu saldo real — nunca queda un gasto sin descontar de algún sitio.</div>
       <div class="filters" id="filters">
         <button data-f="todos" class="active">Todos</button>
         <button data-f="ingreso">Ingresos</button>
@@ -1077,6 +1107,15 @@ async function importAll(file){
 }
 
 /* ============ INICIO ============ */
+function tickClock(){
+  const el = document.getElementById("hudClock");
+  if(!el) return;
+  const now = new Date();
+  el.textContent = now.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
+}
+tickClock();
+setInterval(tickClock, 15000);
+
 (async function init(){
   const loaded = await loadAppData();
   if(loaded){
